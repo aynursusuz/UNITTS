@@ -110,11 +110,12 @@ unitts benchmark --engine chatterbox
 
 | Engine | RTF | Inference (s) | Audio (s) | VRAM (MB) | Sample rate |
 |--------|-----|---------------|-----------|-----------|-------------|
-| Chatterbox | **0.44** | 5.90 | 13.52 | 3,107 | 24,000 |
+| Chatterbox | 0.44 | 5.90 | 13.52 | 3,107 | 24,000 |
 | Fish Audio s2-pro | 4.00 | 38.29 | 9.57 | 19,105 | 44,100 |
 | Qwen3-TTS | 1.07 | 22.61 | 21.12 | 4,014 | 24,000 |
+| Echo-TTS | **0.14** | 4.05 | 28.42 | 6,486 | 44,100 |
 
-*RTF (real-time factor) = inference time / audio duration. Lower is faster.* Fish Audio measurements are without `--compile`; upstream documents ~5x speedup after kernel fusion. Full results: [`benchmarks/results/`](benchmarks/results/). Audio samples: [`benchmarks/audio_samples/`](benchmarks/audio_samples/). Chatterbox and Fish Audio were measured on an A100; Qwen3-TTS on an H100. Echo-TTS is integrated and verified, but its `torchcodec` dependency needs a newer CUDA driver than this host had; run `unitts benchmark --engine echo-tts` on a current-driver GPU to add its row.
+*RTF (real-time factor) = inference time / audio duration. Lower is faster.* Fish Audio measurements are without `--compile`; upstream documents ~5x speedup after kernel fusion. Full results: [`benchmarks/results/`](benchmarks/results/). Audio samples: [`benchmarks/audio_samples/`](benchmarks/audio_samples/). Chatterbox and Fish Audio were measured on an A100; Qwen3-TTS and Echo-TTS on an H100. Echo-TTS reaches the GPU only with a recent CUDA `torch` build; on older drivers it falls back to CPU.
 
 ## Adding an engine
 
