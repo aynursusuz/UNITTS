@@ -1,5 +1,5 @@
 <div align="center">
-<h2>unitts: One Python interface for open-source TTS models</h2>
+<h2>UNITTS: One Python interface for open-source TTS models</h2>
 <div>
     <a href="https://github.com/aynursusuz/unitts/actions/workflows/ci.yml" target="_blank">
         <img src="https://img.shields.io/github/actions/workflow/status/aynursusuz/unitts/ci.yml?branch=main&style=for-the-badge&labelColor=2D3748" alt="CI">
