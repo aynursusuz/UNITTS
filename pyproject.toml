@@ -10,7 +10,7 @@ readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.10"
 authors = [
-    { name = "Aynur Susuz", email = "aynur.susuz.5561@gmail.com" },
+    { name = "aynursusuz" },
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -35,6 +35,7 @@ fish-audio = [
     "fish-speech @ git+https://github.com/fishaudio/fish-speech.git",
     "huggingface_hub>=0.24",
 ]
+qwen3-tts = ["qwen-tts>=0.1.1"]
 dev = ["pytest>=8.0", "ruff>=0.5"]
 
 [project.scripts]

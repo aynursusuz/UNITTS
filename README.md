@@ -30,11 +30,14 @@ uv pip install -e .
 # Install only the engines you need
 uv pip install -e ".[chatterbox]"
 uv pip install -e ".[fish-audio]"
+uv pip install -e ".[qwen3-tts]"
 ```
 
 > Chatterbox depends on `perth`, which still imports `pkg_resources`. On setuptools 80 or newer, also run `uv pip install "setuptools<80"`.
 >
-> Fish Audio pulls `fish-speech` from its GitHub repo (not on PyPI). `fish-speech` and `chatterbox-tts` currently pin different `torch` versions, so install them in separate environments.
+> Fish Audio pulls `fish-speech` from its GitHub repo (not on PyPI). `fish-speech` and `chatterbox-tts` currently pin different `torch` versions, so install them in separate environments. `fish-speech` also depends on `pyaudio`; on Debian/Ubuntu install its system headers first with `sudo apt-get install portaudio19-dev`.
+>
+> Qwen3-TTS pins `transformers==4.57.3` / `accelerate==1.12.0`, so install it in its own environment too. On CUDA you can optionally add FlashAttention 2 (`uv pip install flash-attn --no-build-isolation`) and pass `attn_implementation="flash_attention_2"` to `get_engine`.
 
 ## Inference
 
@@ -50,9 +53,27 @@ Every engine exposes the same interface. Swap by changing the name:
 ```python
 engine = get_engine("chatterbox")     # local, MIT
 engine = get_engine("fish-audio")     # local, s2-pro weights, non-commercial
+engine = get_engine("qwen3-tts")      # local, Apache-2.0, 10 languages
 ```
 
 First call to `fish-audio` downloads the 11 GB s2-pro checkpoint from HuggingFace into the default HF cache. Set `FISH_S2_PRO_DIR` to point at an existing local copy.
+
+`qwen3-tts` defaults to the `Qwen3-TTS-12Hz-1.7B-CustomVoice` checkpoint, which picks a built-in speaker and accepts an optional natural-language `instruct` for emotion/style:
+
+```python
+engine = get_engine("qwen3-tts")
+engine.synthesize_to_file(
+    "Hello world!", "out.wav", speaker="Ryan", instruct="Cheerful and upbeat."
+)
+
+# Voice cloning uses the Base checkpoint (3-second clone from a reference clip):
+clone = get_engine("qwen3-tts", model_path="Qwen/Qwen3-TTS-12Hz-1.7B-Base")
+clone.synthesize_to_file(
+    "Hello world!", "clone.wav", ref_audio="ref.wav", ref_text="reference transcript"
+)
+```
+
+Point at any released checkpoint with `model_path=` or the `QWEN3_TTS_MODEL` env var; `synthesize` routes to custom-voice, voice-design, or voice-clone generation based on which one you load. Weights download from HuggingFace on first use.
 
 ### CLI
 
@@ -70,6 +91,7 @@ unitts benchmark --engine chatterbox
 |--------|------|:-------------:|---------|--------|
 | [Chatterbox](https://github.com/resemble-ai/chatterbox) | local | yes | MIT | integrated |
 | [Fish Audio s2-pro](https://huggingface.co/fishaudio/s2-pro) | local | yes | Fish Audio Research License | integrated |
+| [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) | local | yes | Apache-2.0 | integrated |
 
 ## Benchmark
 
@@ -79,6 +101,8 @@ unitts benchmark --engine chatterbox
 | Fish Audio s2-pro | 4.00 | 38.29 | 9.57 | 19,105 | 44,100 |
 
 *RTF (real-time factor) = inference time / audio duration. Lower is faster.* Fish Audio measurements are without `--compile`; upstream documents ~5x speedup after kernel fusion. Full results: [`benchmarks/results/`](benchmarks/results/). Audio samples: [`benchmarks/audio_samples/`](benchmarks/audio_samples/).
+
+Qwen3-TTS is integrated but not yet benchmarked here; run `unitts benchmark --engine qwen3-tts` on a CUDA box to populate its row.
 
 ## Adding an engine
 
@@ -92,3 +116,5 @@ unitts benchmark --engine chatterbox
 unitts itself is Apache 2.0 (see [LICENSE](LICENSE)). Each integrated model keeps its own upstream license; by invoking an engine you agree to the terms of its model. Third-party model notices are listed in [NOTICE](NOTICE).
 
 **Built with Fish Audio.** The `fish-audio` engine uses Fish Audio s2-pro weights under the Fish Audio Research License (non-commercial). Commercial use of that engine requires a separate license from Fish Audio.
+
+The `qwen3-tts` engine uses Qwen3-TTS weights from the Qwen team at Alibaba Cloud, released under Apache 2.0.

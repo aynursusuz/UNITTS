@@ -1,5 +1,5 @@
-tts-bench
-Copyright 2026 Aynur Susuz
+unitts
+Copyright 2026 aynursusuz
 
 Licensed under the Apache License, Version 2.0. See the LICENSE file for
 the full text.
@@ -15,7 +15,12 @@ Fish Audio s2-pro (engine name: "fish-audio")
     Research and non-commercial use is permitted free of charge. Any
     commercial use of the model requires a separate written license from
     Fish Audio (https://fish.audio). By invoking the "fish-audio" engine in
-    tts-bench you agree to the terms of the Fish Audio Research License,
+    unitts you agree to the terms of the Fish Audio Research License,
     available at https://huggingface.co/fishaudio/s2-pro/blob/main/LICENSE.md.
 
     Built with Fish Audio.
+
+Qwen3-TTS (engine name: "qwen3-tts")
+    Copyright 2026 The Alibaba Qwen team. Licensed under the Apache License,
+    Version 2.0. Source: https://github.com/QwenLM/Qwen3-TTS. Model weights:
+    https://huggingface.co/collections/Qwen/qwen3-tts.
