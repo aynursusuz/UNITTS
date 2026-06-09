@@ -36,6 +36,7 @@ fish-audio = [
     "huggingface_hub>=0.24",
 ]
 qwen3-tts = ["qwen-tts>=0.1.1"]
+echo-tts = ["echo-tts>=0.1.3"]
 dev = ["pytest>=8.0", "ruff>=0.5"]
 
 [project.scripts]

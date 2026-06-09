@@ -31,6 +31,7 @@ uv pip install -e .
 uv pip install -e ".[chatterbox]"
 uv pip install -e ".[fish-audio]"
 uv pip install -e ".[qwen3-tts]"
+uv pip install -e ".[echo-tts]"
 ```
 
 > Chatterbox depends on `perth`, which still imports `pkg_resources`. On setuptools 80 or newer, also run `uv pip install "setuptools<80"`.
@@ -38,6 +39,8 @@ uv pip install -e ".[qwen3-tts]"
 > Fish Audio pulls `fish-speech` from its GitHub repo (not on PyPI). `fish-speech` and `chatterbox-tts` currently pin different `torch` versions, so install them in separate environments. `fish-speech` also depends on `pyaudio`; on Debian/Ubuntu install its system headers first with `sudo apt-get install portaudio19-dev`.
 >
 > Qwen3-TTS pins `transformers==4.57.3` / `accelerate==1.12.0`, so install it in its own environment too. On CUDA you can optionally add FlashAttention 2 (`uv pip install flash-attn --no-build-isolation`) and pass `attn_implementation="flash_attention_2"` to `get_engine`.
+>
+> Echo-TTS needs a CUDA GPU (~8 GB VRAM). It depends on `torchcodec`, which loads the system FFmpeg libraries at runtime — install FFmpeg if it is missing. Its weights are non-commercial (CC-BY-NC-SA-4.0).
 
 ## Inference
 
@@ -54,6 +57,7 @@ Every engine exposes the same interface. Swap by changing the name:
 engine = get_engine("chatterbox")     # local, MIT
 engine = get_engine("fish-audio")     # local, s2-pro weights, non-commercial
 engine = get_engine("qwen3-tts")      # local, Apache-2.0, 10 languages
+engine = get_engine("echo-tts")       # local, diffusion, MIT code / non-commercial weights
 ```
 
 First call to `fish-audio` downloads the 11 GB s2-pro checkpoint from HuggingFace into the default HF cache. Set `FISH_S2_PRO_DIR` to point at an existing local copy.
@@ -75,6 +79,14 @@ clone.synthesize_to_file(
 
 Point at any released checkpoint with `model_path=` or the `QWEN3_TTS_MODEL` env var; `synthesize` routes to custom-voice, voice-design, or voice-clone generation based on which one you load. Weights download from HuggingFace on first use.
 
+`echo-tts` is a diffusion model; raise `num_steps` for quality or lower it for speed, and pass `speaker_audio` to clone a voice:
+
+```python
+engine = get_engine("echo-tts", num_steps=40)
+engine.synthesize_to_file("Hello world!", "out.wav")                             # built-in voice
+engine.synthesize_to_file("Hello world!", "clone.wav", speaker_audio="ref.wav")  # cloned voice
+```
+
 ### CLI
 
 ```bash
@@ -92,6 +104,7 @@ unitts benchmark --engine chatterbox
 | [Chatterbox](https://github.com/resemble-ai/chatterbox) | local | yes | MIT | integrated |
 | [Fish Audio s2-pro](https://huggingface.co/fishaudio/s2-pro) | local | yes | Fish Audio Research License | integrated |
 | [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) | local | yes | Apache-2.0 | integrated |
+| [Echo-TTS](https://github.com/FoxEngine-ai/echo-tts) | local | yes | CC-BY-NC-SA-4.0 (weights) | integrated |
 
 ## Benchmark
 
@@ -99,10 +112,9 @@ unitts benchmark --engine chatterbox
 |--------|-----|---------------|-----------|-----------|-------------|
 | Chatterbox | **0.44** | 5.90 | 13.52 | 3,107 | 24,000 |
 | Fish Audio s2-pro | 4.00 | 38.29 | 9.57 | 19,105 | 44,100 |
+| Qwen3-TTS | 1.07 | 22.61 | 21.12 | 4,014 | 24,000 |
 
-*RTF (real-time factor) = inference time / audio duration. Lower is faster.* Fish Audio measurements are without `--compile`; upstream documents ~5x speedup after kernel fusion. Full results: [`benchmarks/results/`](benchmarks/results/). Audio samples: [`benchmarks/audio_samples/`](benchmarks/audio_samples/).
-
-Qwen3-TTS is integrated but not yet benchmarked here; run `unitts benchmark --engine qwen3-tts` on a CUDA box to populate its row.
+*RTF (real-time factor) = inference time / audio duration. Lower is faster.* Fish Audio measurements are without `--compile`; upstream documents ~5x speedup after kernel fusion. Full results: [`benchmarks/results/`](benchmarks/results/). Audio samples: [`benchmarks/audio_samples/`](benchmarks/audio_samples/). Chatterbox and Fish Audio were measured on an A100; Qwen3-TTS on an H100. Echo-TTS is integrated and verified, but its `torchcodec` dependency needs a newer CUDA driver than this host had; run `unitts benchmark --engine echo-tts` on a current-driver GPU to add its row.
 
 ## Adding an engine
 
@@ -118,3 +130,5 @@ unitts itself is Apache 2.0 (see [LICENSE](LICENSE)). Each integrated model keep
 **Built with Fish Audio.** The `fish-audio` engine uses Fish Audio s2-pro weights under the Fish Audio Research License (non-commercial). Commercial use of that engine requires a separate license from Fish Audio.
 
 The `qwen3-tts` engine uses Qwen3-TTS weights from the Qwen team at Alibaba Cloud, released under Apache 2.0.
+
+The `echo-tts` engine uses Echo-TTS weights (`jordand/echo-tts-base`) under CC-BY-NC-SA-4.0 (non-commercial research); the `echo-tts` code is MIT. Commercial use of the weights is not permitted.

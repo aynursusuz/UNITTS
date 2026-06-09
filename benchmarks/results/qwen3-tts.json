@@ -1,0 +1,15 @@
+{
+  "engine": "qwen3-tts",
+  "status": "success",
+  "text": "When the sunlight strikes raindrops in the air, they act as a prism and form a rainbow. The rainbow is a division of white light into many beautiful colors. These take the shape of a long round arch, with its path high above, and its two ends apparently beyond the horizon.",
+  "duration_seconds": 21.12,
+  "inference_time_seconds": 22.613,
+  "real_time_factor": 1.0707,
+  "load_time_seconds": 10.313,
+  "sample_rate": 24000,
+  "vram_after_load_mb": 3981.7,
+  "vram_after_inference_mb": 4013.7,
+  "gpu": "NVIDIA H100 PCIe",
+  "audio_file": "benchmarks/audio_samples/qwen3-tts.wav",
+  "timestamp": "2026-06-09T13:49:04.634033+00:00"
+}

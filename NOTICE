@@ -24,3 +24,10 @@ Qwen3-TTS (engine name: "qwen3-tts")
     Copyright 2026 The Alibaba Qwen team. Licensed under the Apache License,
     Version 2.0. Source: https://github.com/QwenLM/Qwen3-TTS. Model weights:
     https://huggingface.co/collections/Qwen/qwen3-tts.
+
+Echo-TTS (engine name: "echo-tts")
+    Copyright Jordan Darefsky / FoxEngine LTD. The echo-tts code is licensed
+    under the MIT License; the model weights (jordand/echo-tts-base) are
+    licensed under CC-BY-NC-SA-4.0 (non-commercial research use only). By
+    invoking the "echo-tts" engine you agree to those terms. Source:
+    https://github.com/FoxEngine-ai/echo-tts.
