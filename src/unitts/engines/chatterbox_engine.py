@@ -13,6 +13,8 @@ from unitts.engines.registry import register_engine
 
 @register_engine
 class ChatterboxEngine(TTSEngine):
+    """Resemble AI's Chatterbox: a fast English model with prompt-based voice cloning."""
+
     name = "chatterbox"
     description = "Chatterbox TTS"
     url = "https://github.com/resemble-ai/chatterbox"
@@ -22,6 +24,7 @@ class ChatterboxEngine(TTSEngine):
     default_sample_rate = 24000
 
     def load_model(self) -> None:
+        """Download the pretrained Chatterbox weights and read its sample rate."""
         from chatterbox.tts import ChatterboxTTS
 
         self.model = ChatterboxTTS.from_pretrained(device=self.device)
@@ -33,6 +36,16 @@ class ChatterboxEngine(TTSEngine):
         audio_prompt_path: str | None = None,
         **kwargs: Any,
     ) -> TTSResult:
+        """Synthesize ``text`` with Chatterbox.
+
+        Args:
+            text: The text to read aloud.
+            audio_prompt_path: Optional reference clip to clone the voice from.
+            **kwargs: Extra options forwarded to ``ChatterboxTTS.generate``.
+
+        Returns:
+            The synthesized audio and timing metadata.
+        """
         self.ensure_loaded()
 
         start = time.perf_counter()

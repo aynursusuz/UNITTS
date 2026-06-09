@@ -33,6 +33,11 @@ def _ensure_project_root_marker() -> None:
 
 @register_engine
 class FishAudioEngine(TTSEngine):
+    """Fish Audio s2-pro: multilingual, 44.1 kHz, voice cloning from a reference id.
+
+    The weights are released under a non-commercial research license.
+    """
+
     name = "fish-audio"
     description = "Fish Audio s2-pro (HF weights, non-commercial)"
     url = "https://huggingface.co/fishaudio/s2-pro"
@@ -64,6 +69,17 @@ class FishAudioEngine(TTSEngine):
         use_compile: bool = False,
         **kwargs: Any,
     ) -> None:
+        """Configure the engine.
+
+        Args:
+            checkpoint_dir: Local s2-pro checkpoint directory. Falls back to the
+                ``FISH_S2_PRO_DIR`` environment variable, then to a HuggingFace
+                download on first load.
+            precision: Inference precision: ``"bfloat16"``, ``"float16"`` or ``"half"``.
+            use_compile: Compile the model for faster inference at the cost of a
+                slower first call.
+            **kwargs: Forwarded to :class:`TTSEngine` (e.g. ``device``).
+        """
         super().__init__(**kwargs)
         env_dir = os.environ.get("FISH_S2_PRO_DIR")
         self.checkpoint_dir = (
@@ -75,6 +91,7 @@ class FishAudioEngine(TTSEngine):
         self.use_compile = use_compile
 
     def load_model(self) -> None:
+        """Download the s2-pro checkpoint if needed and build the inference engine."""
         import torch
         from huggingface_hub import snapshot_download
 
@@ -118,6 +135,24 @@ class FishAudioEngine(TTSEngine):
         temperature: float = 0.7,
         **kwargs: Any,
     ) -> TTSResult:
+        """Synthesize ``text`` with Fish Audio s2-pro.
+
+        Args:
+            text: The text to read aloud.
+            reference_id: Optional id of a stored reference voice to clone.
+            max_new_tokens: Maximum number of audio tokens to generate.
+            chunk_length: Number of characters per synthesis chunk.
+            top_p: Nucleus sampling probability.
+            repetition_penalty: Penalty applied to repeated tokens.
+            temperature: Sampling temperature; higher is more varied.
+            **kwargs: Accepted for interface compatibility; currently unused.
+
+        Returns:
+            The synthesized audio and timing metadata.
+
+        Raises:
+            RuntimeError: If the model produces no audio.
+        """
         from fish_speech.utils.schema import ServeTTSRequest
 
         self.ensure_loaded()

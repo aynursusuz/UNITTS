@@ -11,15 +11,13 @@ from typing import Any
 from rich.console import Console
 from rich.table import Table
 
+from unitts.datasets import LONG_TEXT_EN
 from unitts.engines import ENGINE_REGISTRY, get_engine
 
 console = Console()
 
-DEFAULT_TEXT = (
-    "When the sunlight strikes raindrops in the air, they act as a prism "
-    "and form a rainbow. The rainbow is a division of white light into many "
-    "beautiful colors."
-)
+# Keep one canonical benchmark text in unitts.datasets so every caller shares it.
+DEFAULT_TEXT = LONG_TEXT_EN
 
 
 def run_benchmark(

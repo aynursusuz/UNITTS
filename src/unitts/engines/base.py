@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -102,13 +101,6 @@ class TTSEngine(ABC):
         if self.device == "cuda" and torch.cuda.is_available():
             return torch.cuda.memory_allocated() / 1024 / 1024
         return None
-
-    def _measure_inference(self, text: str, **kwargs: Any) -> tuple[np.ndarray, int, float]:
-        """Helper to measure inference time. Returns (audio, sample_rate, elapsed)."""
-        start = time.perf_counter()
-        result = self.synthesize(text, **kwargs)
-        elapsed = time.perf_counter() - start
-        return result.audio, result.sample_rate, elapsed
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} name={self.name!r} loaded={self._loaded}>"
