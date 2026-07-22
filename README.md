@@ -33,8 +33,6 @@ uv pip install -e ".[fish-audio]"
 uv pip install -e ".[qwen3-tts]"
 uv pip install -e ".[echo-tts]"
 uv pip install -e ".[kokoro]"
-uv pip install -e ".[f5-tts]"
-uv pip install -e ".[voxcpm]"
 uv pip install -e ".[supertonic]"
 uv pip install -e ".[neutts]"
 ```
@@ -64,8 +62,6 @@ engine = get_engine("fish-audio")     # local, s2-pro weights, non-commercial
 engine = get_engine("qwen3-tts")      # local, Apache-2.0, 10 languages
 engine = get_engine("echo-tts")       # local, diffusion, MIT code / non-commercial weights
 engine = get_engine("kokoro")         # local, Apache-2.0, 82M params, runs on CPU
-engine = get_engine("f5-tts")         # local, voice cloning, MIT code / non-commercial weights
-engine = get_engine("voxcpm")         # local, Apache-2.0, 30 languages, 48 kHz
 engine = get_engine("supertonic")     # local, ONNX on-device, 31 languages, runs on CPU
 engine = get_engine("neutts")         # local, voice cloning on CPU, Apache-2.0
 ```
@@ -116,8 +112,6 @@ unitts benchmark --engine chatterbox
 | [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) | local | yes | Apache-2.0 | integrated |
 | [Echo-TTS](https://github.com/FoxEngine-ai/echo-tts) | local | yes | CC-BY-NC-SA-4.0 (weights) | integrated |
 | [Kokoro](https://github.com/hexgrad/kokoro) | local | no | Apache-2.0 | integrated |
-| [F5-TTS](https://github.com/SWivid/F5-TTS) | local | yes | CC-BY-NC-4.0 (weights) | integrated |
-| [VoxCPM2](https://github.com/OpenBMB/VoxCPM) | local | yes | Apache-2.0 | integrated |
 | [Supertonic](https://github.com/supertone-inc/supertonic) | local | no | OpenRAIL-M (weights) | integrated |
 | [NeuTTS](https://github.com/neuphonic/neutts) | local | yes | Apache-2.0 | integrated |
 
@@ -150,10 +144,6 @@ The `qwen3-tts` engine uses Qwen3-TTS weights from the Qwen team at Alibaba Clou
 The `echo-tts` engine uses Echo-TTS weights (`jordand/echo-tts-base`) under CC-BY-NC-SA-4.0 (non-commercial research); the `echo-tts` code is MIT. Commercial use of the weights is not permitted.
 
 The `kokoro` engine uses Kokoro-82M weights (`hexgrad/Kokoro-82M`), released under Apache 2.0.
-
-The `f5-tts` engine uses F5-TTS weights (`SWivid/F5-TTS`) under CC-BY-NC-4.0 (non-commercial); the `f5-tts` code is MIT. Commercial use of the weights is not permitted.
-
-The `voxcpm` engine uses VoxCPM2 weights (`openbmb/VoxCPM2`) from OpenBMB, released under Apache 2.0.
 
 The `supertonic` engine uses Supertonic weights from Supertone under the OpenRAIL-M license; the sample code is MIT.
 

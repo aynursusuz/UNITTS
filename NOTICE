@@ -37,18 +37,6 @@ Kokoro (engine name: "kokoro")
     and model weights). Source: https://github.com/hexgrad/kokoro. Model
     weights: https://huggingface.co/hexgrad/Kokoro-82M.
 
-F5-TTS (engine name: "f5-tts")
-    Copyright the F5-TTS authors (SWivid). The f5-tts code is licensed under
-    the MIT License; the model weights (SWivid/F5-TTS) are licensed under
-    CC-BY-NC-4.0 (non-commercial use only, due to the Emilia training data).
-    By invoking the "f5-tts" engine you agree to those terms. Source:
-    https://github.com/SWivid/F5-TTS.
-
-VoxCPM2 (engine name: "voxcpm")
-    Copyright OpenBMB. Licensed under the Apache License, Version 2.0 (code
-    and model weights). Source: https://github.com/OpenBMB/VoxCPM. Model
-    weights: https://huggingface.co/openbmb/VoxCPM2.
-
 Supertonic (engine name: "supertonic")
     Copyright Supertone Inc. The sample code is licensed under the MIT
     License; the model weights are licensed under OpenRAIL-M. By invoking
