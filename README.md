@@ -44,10 +44,6 @@ uv pip install -e ".[voxcpm]"
 > Qwen3-TTS pins `transformers==4.57.3` / `accelerate==1.12.0`, so install it in its own environment too. On CUDA you can optionally add FlashAttention 2 (`uv pip install flash-attn --no-build-isolation`) and pass `attn_implementation="flash_attention_2"` to `get_engine`.
 >
 > Echo-TTS needs a CUDA GPU (~8 GB VRAM). It depends on `torchcodec`, which loads the system FFmpeg libraries at runtime — install FFmpeg if it is missing. Its weights are non-commercial (CC-BY-NC-SA-4.0).
->
-> Kokoro needs `espeak-ng` on the system as a grapheme-to-phoneme fallback for English (`brew install espeak-ng` / `sudo apt-get install espeak-ng`). Japanese and Chinese additionally need `uv pip install "misaki[ja]"` / `"misaki[zh]"`.
->
-> F5-TTS weights are non-commercial (CC-BY-NC-4.0, due to the Emilia training data); the code is MIT.
 
 ## Inference
 
@@ -95,33 +91,6 @@ Point at any released checkpoint with `model_path=` or the `QWEN3_TTS_MODEL` env
 engine = get_engine("echo-tts", num_steps=40)
 engine.synthesize_to_file("Hello world!", "out.wav")                             # built-in voice
 engine.synthesize_to_file("Hello world!", "clone.wav", speaker_audio="ref.wav")  # cloned voice
-```
-
-`kokoro` is the lightweight engine — 82M parameters, faster than real time on CPU, Apache-2.0 weights. Pick a language at construction and any of its built-in voices per call:
-
-```python
-engine = get_engine("kokoro")                      # American English, voice "af_heart"
-engine.synthesize_to_file("Hello world!", "out.wav", voice="am_adam", speed=1.1)
-
-engine = get_engine("kokoro", lang_code="e", voice="ef_dora")  # Spanish
-```
-
-`f5-tts` always speaks in a cloned voice: pass a short reference clip, and optionally its transcript (omit `ref_text` to auto-transcribe with Whisper). Raise `nfe_step` for quality:
-
-```python
-engine = get_engine("f5-tts")
-engine.synthesize_to_file(
-    "Hello world!", "clone.wav", ref_audio="ref.wav", ref_text="reference transcript"
-)
-```
-
-`voxcpm` (VoxCPM2, 2B) covers 30 languages at 48 kHz with three voice modes — default, designed from a description, or cloned from a clip:
-
-```python
-engine = get_engine("voxcpm")
-engine.synthesize_to_file("Hello world!", "out.wav")                              # default voice
-engine.synthesize_to_file("(a calm, deep male narrator) Hello!", "design.wav")    # voice design
-engine.synthesize_to_file("Hello world!", "clone.wav", ref_audio="ref.wav")       # cloned voice
 ```
 
 ### CLI
@@ -176,6 +145,6 @@ The `echo-tts` engine uses Echo-TTS weights (`jordand/echo-tts-base`) under CC-B
 
 The `kokoro` engine uses Kokoro-82M weights (`hexgrad/Kokoro-82M`), released under Apache 2.0.
 
-The `f5-tts` engine uses F5-TTS weights (`SWivid/F5-TTS`) under CC-BY-NC-4.0 (non-commercial, due to the Emilia training data); the `f5-tts` code is MIT. Commercial use of the weights is not permitted.
+The `f5-tts` engine uses F5-TTS weights (`SWivid/F5-TTS`) under CC-BY-NC-4.0 (non-commercial); the `f5-tts` code is MIT. Commercial use of the weights is not permitted.
 
 The `voxcpm` engine uses VoxCPM2 weights (`openbmb/VoxCPM2`) from OpenBMB, released under Apache 2.0.
