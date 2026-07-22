@@ -17,10 +17,12 @@ _DEFAULT_MODEL = "F5TTS_v1_Base"
 class F5TTSEngine(TTSEngine):
     """F5-TTS: zero-shot voice cloning with flow matching.
 
-    F5-TTS always speaks in a cloned voice: every call needs a short reference
-    clip (``ref_audio``). Pass its transcript as ``ref_text``, or leave it out
-    to have the reference transcribed automatically with Whisper (slower on
-    the first call, which downloads the ASR model).
+    F5-TTS always speaks in a cloned voice: pass a short reference clip as
+    ``ref_audio``, or omit it to fall back to the example clip bundled with the
+    ``f5-tts`` package (the same default its own CLI uses). Pass the reference
+    transcript as ``ref_text``, or leave it out to have the reference
+    transcribed automatically with Whisper (slower on the first call, which
+    downloads the ASR model).
 
     The F5-TTS code is MIT licensed; the default ``F5TTS_v1_Base`` weights are
     CC-BY-NC-4.0 (non-commercial, due to the Emilia training data).
@@ -62,6 +64,14 @@ class F5TTSEngine(TTSEngine):
         self.nfe_step = nfe_step
         self.speed = speed
 
+    @staticmethod
+    def _bundled_reference() -> tuple[str, str]:
+        """Return the example reference clip and transcript shipped with ``f5-tts``."""
+        from importlib.resources import files
+
+        ref_path = files("f5_tts").joinpath("infer/examples/basic/basic_ref_en.wav")
+        return str(ref_path), "Some call me nature, others call me mother nature."
+
     def load_model(self) -> None:
         """Load the F5-TTS model and vocoder; weights download on first use."""
         from f5_tts.api import F5TTS
@@ -88,8 +98,9 @@ class F5TTSEngine(TTSEngine):
 
         Args:
             text: The text to read aloud.
-            ref_audio: Path to the reference clip to clone the voice from
-                (required; a few seconds of clean speech works best).
+            ref_audio: Path to the reference clip to clone the voice from (a few
+                seconds of clean speech works best). Omit to use the example
+                clip bundled with the ``f5-tts`` package.
             ref_text: Transcript of ``ref_audio``. Omit to auto-transcribe the
                 reference with Whisper.
             nfe_step: Denoising steps; defaults to the engine's ``nfe_step``.
@@ -101,16 +112,12 @@ class F5TTSEngine(TTSEngine):
 
         Returns:
             The synthesized audio and timing metadata.
-
-        Raises:
-            ValueError: If ``ref_audio`` is missing.
         """
         self.ensure_loaded()
         if ref_audio is None:
-            raise ValueError(
-                "f5-tts is a voice-cloning model: pass ref_audio (a short reference "
-                "clip), and optionally ref_text with its transcript."
-            )
+            ref_audio, bundled_text = self._bundled_reference()
+            if ref_text is None:
+                ref_text = bundled_text
 
         start = time.perf_counter()
         wav, sample_rate, _spec = self.model.infer(

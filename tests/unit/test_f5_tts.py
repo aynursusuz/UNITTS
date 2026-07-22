@@ -6,7 +6,6 @@ logic is exercised without loading any weights.
 """
 
 import numpy as np
-import pytest
 
 from unitts.engines.f5_tts_engine import F5TTSEngine
 from unitts.engines.registry import ENGINE_REGISTRY
@@ -50,10 +49,23 @@ def test_metadata():
     assert eng.model_name == "F5TTS_v1_Base"
 
 
-def test_requires_ref_audio():
+def test_falls_back_to_bundled_reference(monkeypatch):
     eng = _engine()
-    with pytest.raises(ValueError, match="ref_audio"):
-        eng.synthesize("Hello")
+    monkeypatch.setattr(
+        F5TTSEngine, "_bundled_reference", staticmethod(lambda: ("bundled.wav", "bundled text"))
+    )
+    eng.synthesize("Hello")
+    assert eng.model.calls["ref_file"] == "bundled.wav"
+    assert eng.model.calls["ref_text"] == "bundled text"
+
+
+def test_explicit_ref_text_survives_bundled_fallback(monkeypatch):
+    eng = _engine()
+    monkeypatch.setattr(
+        F5TTSEngine, "_bundled_reference", staticmethod(lambda: ("bundled.wav", "bundled text"))
+    )
+    eng.synthesize("Hello", ref_text="my transcript")
+    assert eng.model.calls["ref_text"] == "my transcript"
 
 
 def test_synthesize_defaults():
