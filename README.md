@@ -32,6 +32,9 @@ uv pip install -e ".[chatterbox]"
 uv pip install -e ".[fish-audio]"
 uv pip install -e ".[qwen3-tts]"
 uv pip install -e ".[echo-tts]"
+uv pip install -e ".[kokoro]"
+uv pip install -e ".[f5-tts]"
+uv pip install -e ".[voxcpm]"
 ```
 
 > Chatterbox depends on `perth`, which still imports `pkg_resources`. On setuptools 80 or newer, also run `uv pip install "setuptools<80"`.
@@ -41,6 +44,10 @@ uv pip install -e ".[echo-tts]"
 > Qwen3-TTS pins `transformers==4.57.3` / `accelerate==1.12.0`, so install it in its own environment too. On CUDA you can optionally add FlashAttention 2 (`uv pip install flash-attn --no-build-isolation`) and pass `attn_implementation="flash_attention_2"` to `get_engine`.
 >
 > Echo-TTS needs a CUDA GPU (~8 GB VRAM). It depends on `torchcodec`, which loads the system FFmpeg libraries at runtime — install FFmpeg if it is missing. Its weights are non-commercial (CC-BY-NC-SA-4.0).
+>
+> Kokoro needs `espeak-ng` on the system as a grapheme-to-phoneme fallback for English (`brew install espeak-ng` / `sudo apt-get install espeak-ng`). Japanese and Chinese additionally need `uv pip install "misaki[ja]"` / `"misaki[zh]"`.
+>
+> F5-TTS weights are non-commercial (CC-BY-NC-4.0, due to the Emilia training data); the code is MIT.
 
 ## Inference
 
@@ -58,6 +65,9 @@ engine = get_engine("chatterbox")     # local, MIT
 engine = get_engine("fish-audio")     # local, s2-pro weights, non-commercial
 engine = get_engine("qwen3-tts")      # local, Apache-2.0, 10 languages
 engine = get_engine("echo-tts")       # local, diffusion, MIT code / non-commercial weights
+engine = get_engine("kokoro")         # local, Apache-2.0, 82M params, runs on CPU
+engine = get_engine("f5-tts")         # local, voice cloning, MIT code / non-commercial weights
+engine = get_engine("voxcpm")         # local, Apache-2.0, 30 languages, 48 kHz
 ```
 
 First call to `fish-audio` downloads the 11 GB s2-pro checkpoint from HuggingFace into the default HF cache. Set `FISH_S2_PRO_DIR` to point at an existing local copy.
@@ -87,6 +97,33 @@ engine.synthesize_to_file("Hello world!", "out.wav")                            
 engine.synthesize_to_file("Hello world!", "clone.wav", speaker_audio="ref.wav")  # cloned voice
 ```
 
+`kokoro` is the lightweight engine — 82M parameters, faster than real time on CPU, Apache-2.0 weights. Pick a language at construction and any of its built-in voices per call:
+
+```python
+engine = get_engine("kokoro")                      # American English, voice "af_heart"
+engine.synthesize_to_file("Hello world!", "out.wav", voice="am_adam", speed=1.1)
+
+engine = get_engine("kokoro", lang_code="e", voice="ef_dora")  # Spanish
+```
+
+`f5-tts` always speaks in a cloned voice: pass a short reference clip, and optionally its transcript (omit `ref_text` to auto-transcribe with Whisper). Raise `nfe_step` for quality:
+
+```python
+engine = get_engine("f5-tts")
+engine.synthesize_to_file(
+    "Hello world!", "clone.wav", ref_audio="ref.wav", ref_text="reference transcript"
+)
+```
+
+`voxcpm` (VoxCPM2, 2B) covers 30 languages at 48 kHz with three voice modes — default, designed from a description, or cloned from a clip:
+
+```python
+engine = get_engine("voxcpm")
+engine.synthesize_to_file("Hello world!", "out.wav")                              # default voice
+engine.synthesize_to_file("(a calm, deep male narrator) Hello!", "design.wav")    # voice design
+engine.synthesize_to_file("Hello world!", "clone.wav", ref_audio="ref.wav")       # cloned voice
+```
+
 ### CLI
 
 ```bash
@@ -105,6 +142,9 @@ unitts benchmark --engine chatterbox
 | [Fish Audio s2-pro](https://huggingface.co/fishaudio/s2-pro) | local | yes | Fish Audio Research License | integrated |
 | [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) | local | yes | Apache-2.0 | integrated |
 | [Echo-TTS](https://github.com/FoxEngine-ai/echo-tts) | local | yes | CC-BY-NC-SA-4.0 (weights) | integrated |
+| [Kokoro](https://github.com/hexgrad/kokoro) | local | no | Apache-2.0 | integrated |
+| [F5-TTS](https://github.com/SWivid/F5-TTS) | local | yes | CC-BY-NC-4.0 (weights) | integrated |
+| [VoxCPM2](https://github.com/OpenBMB/VoxCPM) | local | yes | Apache-2.0 | integrated |
 
 ## Benchmark
 
@@ -133,3 +173,9 @@ unitts itself is Apache 2.0 (see [LICENSE](LICENSE)). Each integrated model keep
 The `qwen3-tts` engine uses Qwen3-TTS weights from the Qwen team at Alibaba Cloud, released under Apache 2.0.
 
 The `echo-tts` engine uses Echo-TTS weights (`jordand/echo-tts-base`) under CC-BY-NC-SA-4.0 (non-commercial research); the `echo-tts` code is MIT. Commercial use of the weights is not permitted.
+
+The `kokoro` engine uses Kokoro-82M weights (`hexgrad/Kokoro-82M`), released under Apache 2.0.
+
+The `f5-tts` engine uses F5-TTS weights (`SWivid/F5-TTS`) under CC-BY-NC-4.0 (non-commercial, due to the Emilia training data); the `f5-tts` code is MIT. Commercial use of the weights is not permitted.
+
+The `voxcpm` engine uses VoxCPM2 weights (`openbmb/VoxCPM2`) from OpenBMB, released under Apache 2.0.
