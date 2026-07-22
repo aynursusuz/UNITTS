@@ -35,6 +35,8 @@ uv pip install -e ".[echo-tts]"
 uv pip install -e ".[kokoro]"
 uv pip install -e ".[f5-tts]"
 uv pip install -e ".[voxcpm]"
+uv pip install -e ".[supertonic]"
+uv pip install -e ".[neutts]"
 ```
 
 > Chatterbox depends on `perth`, which still imports `pkg_resources`. On setuptools 80 or newer, also run `uv pip install "setuptools<80"`.
@@ -64,6 +66,8 @@ engine = get_engine("echo-tts")       # local, diffusion, MIT code / non-commerc
 engine = get_engine("kokoro")         # local, Apache-2.0, 82M params, runs on CPU
 engine = get_engine("f5-tts")         # local, voice cloning, MIT code / non-commercial weights
 engine = get_engine("voxcpm")         # local, Apache-2.0, 30 languages, 48 kHz
+engine = get_engine("supertonic")     # local, ONNX on-device, 31 languages, runs on CPU
+engine = get_engine("neutts")         # local, voice cloning on CPU, Apache-2.0
 ```
 
 First call to `fish-audio` downloads the 11 GB s2-pro checkpoint from HuggingFace into the default HF cache. Set `FISH_S2_PRO_DIR` to point at an existing local copy.
@@ -114,6 +118,8 @@ unitts benchmark --engine chatterbox
 | [Kokoro](https://github.com/hexgrad/kokoro) | local | no | Apache-2.0 | integrated |
 | [F5-TTS](https://github.com/SWivid/F5-TTS) | local | yes | CC-BY-NC-4.0 (weights) | integrated |
 | [VoxCPM2](https://github.com/OpenBMB/VoxCPM) | local | yes | Apache-2.0 | integrated |
+| [Supertonic](https://github.com/supertone-inc/supertonic) | local | no | OpenRAIL-M (weights) | integrated |
+| [NeuTTS](https://github.com/neuphonic/neutts) | local | yes | Apache-2.0 | integrated |
 
 ## Benchmark
 
@@ -148,3 +154,7 @@ The `kokoro` engine uses Kokoro-82M weights (`hexgrad/Kokoro-82M`), released und
 The `f5-tts` engine uses F5-TTS weights (`SWivid/F5-TTS`) under CC-BY-NC-4.0 (non-commercial); the `f5-tts` code is MIT. Commercial use of the weights is not permitted.
 
 The `voxcpm` engine uses VoxCPM2 weights (`openbmb/VoxCPM2`) from OpenBMB, released under Apache 2.0.
+
+The `supertonic` engine uses Supertonic weights from Supertone under the OpenRAIL-M license; the sample code is MIT.
+
+The `neutts` engine defaults to NeuTTS-Air weights (`neuphonic/neutts-air`) from Neuphonic, released under Apache 2.0; the `neutts-nano` checkpoints use the NeuTTS Open License.

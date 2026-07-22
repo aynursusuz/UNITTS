@@ -48,3 +48,15 @@ VoxCPM2 (engine name: "voxcpm")
     Copyright OpenBMB. Licensed under the Apache License, Version 2.0 (code
     and model weights). Source: https://github.com/OpenBMB/VoxCPM. Model
     weights: https://huggingface.co/openbmb/VoxCPM2.
+
+Supertonic (engine name: "supertonic")
+    Copyright Supertone Inc. The sample code is licensed under the MIT
+    License; the model weights are licensed under OpenRAIL-M. By invoking
+    the "supertonic" engine you agree to those terms. Source:
+    https://github.com/supertone-inc/supertonic.
+
+NeuTTS (engine name: "neutts")
+    Copyright Neuphonic. The default neutts-air weights are licensed under
+    the Apache License, Version 2.0; the neutts-nano checkpoints are
+    licensed under the NeuTTS Open License 1.0. Source:
+    https://github.com/neuphonic/neutts.
