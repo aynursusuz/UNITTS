@@ -146,6 +146,7 @@ def test_generation_uses_one_conversation_and_forwards_reference_and_options(tmp
         ref_audio=reference,
         tokens=75,
         max_new_tokens=300,
+        do_sample=False,
         audio_temperature=0.8,
     )
 
@@ -161,7 +162,7 @@ def test_generation_uses_one_conversation_and_forwards_reference_and_options(tmp
         input_ids=batch["input_ids"].to.return_value,
         attention_mask=batch["attention_mask"].to.return_value,
         max_new_tokens=300,
-        do_sample=True,
+        do_sample=False,
         audio_temperature=0.8,
         audio_top_p=0.8,
         audio_top_k=25,
@@ -187,6 +188,33 @@ def test_default_generation_options_and_language_override():
     result = engine.synthesize("Hello", language="auto")
     assert engine.processor.build_user_message.call_args.kwargs["language"] is None
     assert result.metadata["voice_cloning"] is False
+
+
+def test_delay_checkpoint_accepts_default_generation_options():
+    engine = _engine(model_path="OpenMOSS-Team/MOSS-TTS-v1.5")
+
+    # The official Delay API has neither do_sample nor arbitrary **kwargs.
+    def generate(
+        input_ids,
+        attention_mask=None,
+        max_new_tokens=1000,
+        text_temperature=1.5,
+        text_top_p=1.0,
+        text_top_k=50,
+        audio_temperature=1.7,
+        audio_top_p=0.8,
+        audio_top_k=25,
+        audio_repetition_penalty=1.0,
+    ):
+        return "delay-generated"
+
+    engine.model.generate.side_effect = generate
+    result = engine.synthesize("Hello from Delay.")
+
+    engine.processor.decode.assert_called_once_with("delay-generated")
+    assert result.metadata["model_path"] == "OpenMOSS-Team/MOSS-TTS-v1.5"
+    assert result.sample_rate == 24000
+    assert result.duration_seconds == 1.0
 
 
 @pytest.mark.parametrize("shape", [(24000,), (1, 24000), (2, 24000)])

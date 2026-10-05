@@ -164,9 +164,9 @@ class MossTTSEngine(TTSEngine):
                 tokens=tokens,
             )
             batch = self.processor([[message]], mode="generation")
+            # Delay has no do_sample argument; Local already defaults it to True.
             generation_kwargs = {
                 "max_new_tokens": 4096,
-                "do_sample": True,
                 "audio_temperature": 1.7,
                 "audio_top_p": 0.8,
                 "audio_top_k": 25,
