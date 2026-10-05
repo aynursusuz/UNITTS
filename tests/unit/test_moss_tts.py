@@ -1,6 +1,5 @@
 """MOSS-TTS adapter contracts, with fake upstream models and no downloaded weights."""
 
-import gc
 import sys
 import weakref
 from contextlib import nullcontext
@@ -286,12 +285,13 @@ def test_empty_or_invalid_waveform(shape):
 def test_unload_releases_processor_codec_and_model(monkeypatch):
     monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
     engine = _engine()
+    engine.model.cycle = engine.model
+    engine.processor.cycle = engine.processor
     processor_ref = weakref.ref(engine.processor)
     codec_ref = weakref.ref(engine.processor.audio_tokenizer)
     model_ref = weakref.ref(engine.model)
 
     engine.unload_model()
-    gc.collect()
 
     assert engine.processor is None
     assert engine.model is None

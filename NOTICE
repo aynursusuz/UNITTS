@@ -16,6 +16,25 @@ MOSS-TTS v1.5 (engine name: "moss-tts")
     Default: https://huggingface.co/OpenMOSS-Team/MOSS-TTS-v1.5.
     Alternative: https://huggingface.co/OpenMOSS-Team/MOSS-TTS-Local-Transformer-v1.5.
 
+Higgs TTS 3 4B (engine name: "higgs-tts")
+    Boson Higgs TTS 3 is licensed under the Boson Higgs TTS 3 Research and
+    Non-Commercial License, Copyright (c) Boson AI USA, Inc. All Rights Reserved.
+
+    This is a source-available research and non-commercial model license,
+    not an open source license. The Creator Use Grant additionally permits
+    creators to publish and monetize creative content with prominent
+    attribution to Boson AI's Higgs Audio in the audio or accompanying text.
+    This grant does not cover hosting the model for third parties or
+    embedding it in a product or service; a separate commercial license is
+    required for those uses.
+
+    Built with Higgs TTS 3 licensed from Boson AI USA, Inc.
+    This adapter calls a separately managed SGLang-Omni server. Model
+    weights and their accompanying license/NOTICE files remain upstream.
+    Model: https://huggingface.co/bosonai/higgs-tts-3-4b.
+    License: https://huggingface.co/bosonai/higgs-tts-3-4b/blob/main/LICENSE.
+    Server: https://github.com/sgl-project/sglang-omni.
+
 Fish Audio s2-pro (engine name: "fish-audio")
     This model is licensed under the Fish Audio Research License, Copyright ©
     39 AI, INC. All Rights Reserved.

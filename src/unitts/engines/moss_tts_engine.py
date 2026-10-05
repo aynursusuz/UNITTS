@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import gc
 import os
 import time
 from contextlib import nullcontext
@@ -62,7 +63,7 @@ def _language_name(language: str | None) -> str | None:
 class MossTTSEngine(TTSEngine):
     """MOSS-TTS v1.5: the flagship 8B Delay model by default.
 
-    Both support 31 languages and optional reference-audio voice cloning.
+    The Delay and optional Local checkpoints support 31 languages and cloning.
     The upstream processor owns a separate audio-tokenizer model. Its native
     output is 48 kHz stereo for Local v1.5 and 24 kHz mono for Delay v1.5.
     This adapter returns complete audio, not streaming chunks.
@@ -214,4 +215,8 @@ class MossTTSEngine(TTSEngine):
     def unload_model(self) -> None:
         """Release both the language model and processor-owned audio codec."""
         self.processor = None
+        self.model = None
+        # Upstream model modules can hold reference cycles. Collect them before
+        # empty_cache() so a following engine can use their CUDA allocations.
+        gc.collect()
         super().unload_model()

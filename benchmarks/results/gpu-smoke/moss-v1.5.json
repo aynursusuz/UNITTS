@@ -1,0 +1,108 @@
+{
+  "engine": "moss-tts",
+  "options": {
+    "device": "cuda",
+    "model_path": "OpenMOSS-Team/MOSS-TTS-v1.5"
+  },
+  "timestamp": "2026-10-05T11:05:39.350893+00:00",
+  "gpu": "NVIDIA RTX 6000 Ada Generation",
+  "gpu_total_mb": 48510.9375,
+  "python": "3.12.3",
+  "torch": "2.9.1+cu128",
+  "cuda_runtime": "12.8",
+  "packages": {
+    "transformers": "5.0.0",
+    "torchaudio": "2.9.1+cu128",
+    "torchcodec": "0.8.1+cu128"
+  },
+  "cases": [
+    {
+      "case": "tr",
+      "text": "Merhaba! Bugün İstanbul'da hava çok güzel. Yeni ses modelimizi deniyoruz.",
+      "language": "tr",
+      "sample_rate": 24000,
+      "shape": [
+        126720
+      ],
+      "duration_seconds": 5.28,
+      "inference_time_seconds": 2.5698922723531723,
+      "real_time_factor": 0.4867220212790099,
+      "peak_allocated_vram_mb": 23167.61376953125,
+      "peak_reserved_vram_mb": 23792.0,
+      "rms": 0.03932533544899779,
+      "metadata": {
+        "model_path": "OpenMOSS-Team/MOSS-TTS-v1.5",
+        "language": "Turkish",
+        "voice_cloning": false,
+        "channels": 1
+      }
+    },
+    {
+      "case": "en",
+      "text": "Hello! The weather in Istanbul is beautiful today. We are testing our new voice model.",
+      "language": "en",
+      "sample_rate": 24000,
+      "shape": [
+        140160
+      ],
+      "duration_seconds": 5.84,
+      "inference_time_seconds": 2.7392867328599095,
+      "real_time_factor": 0.46905594740751877,
+      "peak_allocated_vram_mb": 23162.8779296875,
+      "peak_reserved_vram_mb": 23792.0,
+      "rms": 0.0743361218038862,
+      "metadata": {
+        "model_path": "OpenMOSS-Team/MOSS-TTS-v1.5",
+        "language": "English",
+        "voice_cloning": false,
+        "channels": 1
+      }
+    },
+    {
+      "case": "fr",
+      "text": "Bonjour ! Il fait très beau à Istanbul aujourd'hui. Nous testons notre nouveau modèle vocal.",
+      "language": "fr",
+      "sample_rate": 24000,
+      "shape": [
+        145920
+      ],
+      "duration_seconds": 6.08,
+      "inference_time_seconds": 2.815023426897824,
+      "real_time_factor": 0.46299727416082626,
+      "peak_allocated_vram_mb": 23163.66748046875,
+      "peak_reserved_vram_mb": 23792.0,
+      "rms": 0.047404568737194945,
+      "metadata": {
+        "model_path": "OpenMOSS-Team/MOSS-TTS-v1.5",
+        "language": "French",
+        "voice_cloning": false,
+        "channels": 1
+      }
+    },
+    {
+      "case": "tr-clone",
+      "text": "Bu cümle, ilk örnekte üretilen ses referans alınarak okunuyor.",
+      "language": "tr",
+      "sample_rate": 24000,
+      "shape": [
+        99840
+      ],
+      "duration_seconds": 4.16,
+      "inference_time_seconds": 2.440921863541007,
+      "real_time_factor": 0.5867600633512036,
+      "peak_allocated_vram_mb": 23268.287109375,
+      "peak_reserved_vram_mb": 23870.0,
+      "rms": 0.053623570386888746,
+      "metadata": {
+        "model_path": "OpenMOSS-Team/MOSS-TTS-v1.5",
+        "language": "Turkish",
+        "voice_cloning": true,
+        "channels": 1
+      }
+    }
+  ],
+  "note": "First load can include downloads. Warm samples, not a quality ranking.",
+  "first_load_seconds_including_downloads": 28.54669568222016,
+  "status": "success",
+  "allocated_vram_mb_after_unload": 8.125
+}
