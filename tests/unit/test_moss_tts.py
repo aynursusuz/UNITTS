@@ -47,7 +47,7 @@ def test_registry_and_metadata(monkeypatch):
     engine = get_engine("moss-tts", device="cpu")
     assert ENGINE_REGISTRY["moss-tts"] is MossTTSEngine
     assert isinstance(engine, MossTTSEngine)
-    assert engine.model_path == "OpenMOSS-Team/MOSS-TTS-Local-Transformer-v1.5"
+    assert engine.model_path == "OpenMOSS-Team/MOSS-TTS-v1.5"
     assert engine.license == "Apache-2.0"
     assert len(engine.languages) == 31
     assert "tr" in engine.languages

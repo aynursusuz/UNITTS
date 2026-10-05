@@ -13,7 +13,7 @@ import numpy as np
 from unitts.engines.base import TTSEngine, TTSResult
 from unitts.engines.registry import register_engine
 
-_DEFAULT_MODEL = "OpenMOSS-Team/MOSS-TTS-Local-Transformer-v1.5"
+_DEFAULT_MODEL = "OpenMOSS-Team/MOSS-TTS-v1.5"
 _LANGUAGES = {
     "zh": "Chinese",
     "yue": "Cantonese",
@@ -60,7 +60,7 @@ def _language_name(language: str | None) -> str | None:
 
 @register_engine
 class MossTTSEngine(TTSEngine):
-    """MOSS-TTS v1.5: 4B Local Transformer (default) or 8B Delay.
+    """MOSS-TTS v1.5: the flagship 8B Delay model by default.
 
     Both support 31 languages and optional reference-audio voice cloning.
     The upstream processor owns a separate audio-tokenizer model. Its native
@@ -69,12 +69,12 @@ class MossTTSEngine(TTSEngine):
     """
 
     name = "moss-tts"
-    description = "MOSS-TTS v1.5 (4B local / 8B delay, 31 languages)"
+    description = "MOSS-TTS v1.5 (8B, 31 languages, voice cloning)"
     url = "https://github.com/OpenMOSS/MOSS-TTS"
     license = "Apache-2.0"
     languages = list(_LANGUAGES)
     supports_voice_cloning = True
-    default_sample_rate = 48000
+    default_sample_rate = 24000
 
     def __init__(
         self,
