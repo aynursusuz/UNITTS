@@ -30,7 +30,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-chatterbox = ["chatterbox-tts"]
+chatterbox = ["chatterbox-tts", "setuptools<82"]  # perth imports pkg_resources
 moss-tts = [
     "torch==2.9.1",
     "torchaudio==2.9.1",

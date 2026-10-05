@@ -203,9 +203,12 @@ class HiggsTTSEngine(TTSEngine):
             detail = exc.read(1000).decode("utf-8", errors="replace")
             raise RuntimeError(f"Higgs TTS server returned HTTP {exc.code}: {detail}") from exc
         except (URLError, TimeoutError) as exc:
-            raise RuntimeError(
+            from unitts.setup_errors import EngineSetupError
+
+            raise EngineSetupError(
                 f"Cannot reach Higgs TTS server at {self.base_url}: {exc}. "
-                "Start SGLang-Omni with the configured Higgs model first."
+                "Start `unitts serve --engine higgs-tts` in another terminal, "
+                "or set HIGGS_TTS_BASE_URL to your running SGLang-Omni server."
             ) from exc
 
     def load_model(self) -> None:

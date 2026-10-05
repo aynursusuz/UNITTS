@@ -24,8 +24,8 @@ jobs:
         with:
           enable-cache: true
       - run: uv tool install ruff
-      - run: ruff check src/unitts tests
-      - run: ruff format --check src/unitts tests
+      - run: ruff check src/unitts tests scripts
+      - run: ruff format --check src/unitts tests scripts
 
   test:
     name: Test (Python ${{ matrix.python-version }})

@@ -1,0 +1,3 @@
+# Match the pinned server's upstream override for obsolete descript-audiotools metadata.
+# https://github.com/sgl-project/sglang-omni/blob/3d4eb6e49096aa42e7f8f4e72f028823b2d85b73/pyproject.toml
+protobuf>=6.31.1,<7.0.0

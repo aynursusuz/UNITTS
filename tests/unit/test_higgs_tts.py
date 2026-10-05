@@ -213,7 +213,7 @@ def test_connection_failure_mentions_server_setup(monkeypatch):
         raise URLError("connection refused")
 
     monkeypatch.setattr(higgs, "urlopen", fail)
-    with pytest.raises(RuntimeError, match="Start SGLang-Omni"):
+    with pytest.raises(RuntimeError, match="unitts serve --engine higgs-tts"):
         HiggsTTSEngine().ensure_loaded()
 
 

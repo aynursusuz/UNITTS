@@ -153,9 +153,9 @@ class FishAudioEngine(TTSEngine):
         Raises:
             RuntimeError: If the model produces no audio.
         """
-        from fish_speech.utils.schema import ServeTTSRequest
-
         self.ensure_loaded()
+
+        from fish_speech.utils.schema import ServeTTSRequest
 
         req = ServeTTSRequest(
             text=text,

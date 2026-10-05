@@ -82,7 +82,15 @@ class TTSEngine(ABC):
     def ensure_loaded(self) -> None:
         """Ensure the model is loaded, loading it if necessary."""
         if not self._loaded:
-            self.load_model()
+            from unitts.setup_errors import engine_setup_error
+
+            try:
+                self.load_model()
+            except (ImportError, OSError, RuntimeError, AssertionError) as exc:
+                setup_error = engine_setup_error(self.name, exc)
+                if setup_error is not None:
+                    raise setup_error from exc
+                raise
             self._loaded = True
 
     def unload_model(self) -> None:

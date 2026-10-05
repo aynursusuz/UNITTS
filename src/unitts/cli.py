@@ -18,6 +18,28 @@ console = Console()
 
 
 @app.command()
+def serve(
+    engine: Annotated[str, typer.Option("--engine", "-e", help="Server engine name")],
+    host: Annotated[str, typer.Option(help="Listen address")] = "127.0.0.1",
+    port: Annotated[int, typer.Option(min=1, max=65535, help="Listen port")] = 8000,
+    server_python: Annotated[
+        Path | None, typer.Option(help="Python in an existing SGLang-Omni environment")
+    ] = None,
+) -> None:
+    """Start the Higgs server in this terminal; stop it with Ctrl+C."""
+    from unitts.server import serve_higgs
+    from unitts.setup_errors import EngineSetupError
+
+    if engine != "higgs-tts":
+        raise typer.BadParameter("Only higgs-tts needs a separate server.", param_hint="--engine")
+    try:
+        serve_higgs(host=host, port=port, server_python=server_python)
+    except (EngineSetupError, OSError) as exc:
+        console.print(f"Setup error: {exc}", style="red", markup=False)
+        raise typer.Exit(code=1) from exc
+
+
+@app.command()
 def list_engines() -> None:
     """List all available TTS engines."""
     from unitts.engines import list_engines as _list
@@ -54,13 +76,24 @@ def synthesize(
 ) -> None:
     """Synthesize speech from text with the given engine."""
     from unitts.engines import get_engine
+    from unitts.setup_errors import EngineSetupError
 
     console.print(f"[cyan]Loading engine:[/cyan] {engine}")
-    tts = get_engine(engine, device=device)
-    tts.ensure_loaded()
-
-    console.print(f"[cyan]Synthesizing:[/cyan] {text[:80]}...")
-    result = tts.synthesize_to_file(text, output)
+    tts = None
+    try:
+        tts = get_engine(engine, device=device)
+        tts.ensure_loaded()
+        console.print(f"[cyan]Synthesizing:[/cyan] {text[:80]}...")
+        result = tts.synthesize_to_file(text, output)
+    except EngineSetupError as exc:
+        console.print(f"Setup error: {exc}", style="red", markup=False)
+        raise typer.Exit(code=1) from exc
+    finally:
+        if tts is not None:
+            try:
+                tts.unload_model()
+            except Exception as exc:
+                console.print(f"Could not unload {engine}: {exc}", style="yellow", markup=False)
 
     console.print(f"[green]Done![/green] Saved to {output}")
     console.print(f"  Duration: {result.duration_seconds:.2f}s")
