@@ -80,7 +80,7 @@ sgl-omni serve \
     --cuda-graph-max-bs 8
 ```
 
-In another terminal, use the UNITTS environment to call this server. Model weights download on first server startup. The client checks `/health` and verifies the configured model ID through `/v1/models`; a successful synthesis is still needed to confirm inference works. These checks do not launch the server. See the [official Higgs model card](https://huggingface.co/bosonai/higgs-tts-3-4b) and [SGLang-Omni cookbook](https://sgl-project.github.io/sglang-omni/cookbook/higgs_tts.html). Higgs GPU validation for this integration is pending.
+In another terminal, use the UNITTS environment to call this server. Model weights download on first server startup. The client checks `/health` and verifies the configured model ID through `/v1/models`; a successful synthesis is still needed to confirm inference works. These checks do not launch the server. See the [official Higgs model card](https://huggingface.co/bosonai/higgs-tts-3-4b) and [SGLang-Omni cookbook](https://sgl-project.github.io/sglang-omni/cookbook/higgs_tts.html). This setup passed GPU synthesis and cloning tests on RTX 6000 Ada; first startup also compiles CUDA kernels.
 
 ## Inference
 
@@ -190,7 +190,7 @@ The CLI supports basic synthesis; use the Python API above for language selectio
 |--------|------|:-------------:|---------|--------|
 | [Chatterbox](https://github.com/resemble-ai/chatterbox) | local | yes | MIT | integrated |
 | [MOSS-TTS v1.5](https://github.com/OpenMOSS/MOSS-TTS) | local | yes | Apache-2.0 | GPU smoke test passed (8B) |
-| [Higgs TTS 3 4B](https://huggingface.co/bosonai/higgs-tts-3-4b) | self-hosted HTTP | yes | Boson Research and Non-Commercial + Creator Use Grant | adapter added; GPU validation pending |
+| [Higgs TTS 3 4B](https://huggingface.co/bosonai/higgs-tts-3-4b) | self-hosted HTTP | yes | Boson Research and Non-Commercial + Creator Use Grant | GPU smoke test passed (4B) |
 | [Fish Audio s2-pro](https://huggingface.co/fishaudio/s2-pro) | local | yes | Fish Audio Research License | integrated |
 | [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) | local | yes | Apache-2.0 | integrated |
 | [Echo-TTS](https://github.com/FoxEngine-ai/echo-tts) | local | yes | CC-BY-NC-SA-4.0 (weights) | integrated |
@@ -211,15 +211,20 @@ The CLI supports basic synthesis; use the Python API above for language selectio
 
 These historical results are not a controlled speed ranking: GPU hardware and input texts differ. The runner records one inference and allocated VRAM snapshots, not repeated warm measurements or peak VRAM. Compare engines on the same GPU and text before making performance or cost claims.
 
-### GPU smoke test: MOSS-TTS v1.5 8B
+### GPU smoke tests
 
-On October 5, 2026, `OpenMOSS-Team/MOSS-TTS-v1.5` passed Turkish, English, French and Turkish voice-cloning smoke tests on an NVIDIA RTX 6000 Ada Generation (48 GB), with PyTorch 2.9.1+cu128 and Transformers 5.0.0. All four outputs were 24 kHz mono. The cloning case used the first generated Turkish clip as its reference.
+On October 5, 2026, both models passed Turkish, English, French and Turkish voice-cloning smoke tests on the same NVIDIA RTX 6000 Ada Generation (48 GB). All eight outputs were 24 kHz mono. Each cloning case used that model's first generated Turkish clip as its reference; Higgs also received its transcript.
 
-| Case | Audio (s) | Inference (s) | RTF | Peak allocated VRAM (MiB) |
-|------|-----------|---------------|-----|---------------------------|
-| Turkish, short text | 5.28 | 2.57 | 0.487 | 23,168 |
+| Engine, Turkish short text | Audio (s) | Inference (s) | RTF | Peak allocated VRAM (MiB) |
+|----------------------------|-----------|---------------|-----|---------------------------|
+| MOSS-TTS v1.5 8B | 5.28 | 2.57 | 0.487 | 23,168 |
+| Higgs TTS 3 4B | 5.56 | 1.58 | 0.284 | not measured (server) |
 
-Full texts, all four cases and environment details: [`benchmarks/results/gpu-smoke/moss-v1.5.json`](benchmarks/results/gpu-smoke/moss-v1.5.json). [Listen to the Turkish sample](benchmarks/audio_samples/moss-tts.wav). These are individual warm samples, excluding initial model loading, and demonstrate integration rather than a quality ranking or a minimum-VRAM requirement. The peak allocation above covers the Turkish case; other inputs and cloning can use more memory. The optional Local checkpoint was not tested in this run. Higgs GPU validation remains pending.
+MOSS used PyTorch 2.9.1+cu128 and Transformers 5.0.0. Higgs used the pinned SGLang-Omni server above, SGLang 0.5.16, PyTorch 2.11.0+cu130 and Transformers 5.12.1. Higgs timing includes the local HTTP round trip and WAV decoding.
+
+Full texts, all cases and environment details: [MOSS results](benchmarks/results/gpu-smoke/moss-v1.5.json), [Higgs results](benchmarks/results/gpu-smoke/higgs-tts.json). Turkish audio: [MOSS sample](benchmarks/audio_samples/moss-tts.wav), [Higgs sample](benchmarks/audio_samples/higgs-tts.wav).
+
+These are individual warm samples, excluding initial model loading, and demonstrate integration rather than a quality ranking or a minimum-VRAM requirement. They do not measure pronunciation or voice similarity. The MOSS peak allocation above covers the Turkish case; other inputs and cloning can use more memory. Higgs server memory is not measured by the HTTP client. The optional MOSS Local checkpoint was not tested in this run.
 
 ### Run GPU smoke checks
 

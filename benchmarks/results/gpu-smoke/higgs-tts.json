@@ -1,0 +1,124 @@
+{
+  "engine": "higgs-tts",
+  "options": {
+    "device": "cuda",
+    "base_url": "http://127.0.0.1:8001"
+  },
+  "timestamp": "2026-10-05T11:20:04.483751+00:00",
+  "gpu": "NVIDIA RTX 6000 Ada Generation",
+  "gpu_total_mb": 48510.9375,
+  "python": "3.12.3",
+  "torch": "2.9.1+cu128",
+  "cuda_runtime": "12.8",
+  "packages": {
+    "transformers": "5.0.0",
+    "torchaudio": "2.9.1+cu128",
+    "torchcodec": "0.8.1+cu128"
+  },
+  "cases": [
+    {
+      "case": "tr",
+      "text": "Merhaba! Bugün İstanbul'da hava çok güzel. Yeni ses modelimizi deniyoruz.",
+      "language": "tr",
+      "sample_rate": 24000,
+      "shape": [
+        133440
+      ],
+      "duration_seconds": 5.56,
+      "inference_time_seconds": 1.5774257108569145,
+      "real_time_factor": 0.2837096602260638,
+      "peak_allocated_vram_mb": null,
+      "peak_reserved_vram_mb": null,
+      "rms": 0.09545790432371176,
+      "metadata": {
+        "model_path": "bosonai/higgs-tts-3-4b",
+        "backend": "sglang-omni",
+        "device": "server",
+        "timing_scope": "http_round_trip_including_audio_decode",
+        "voice_cloning": false
+      }
+    },
+    {
+      "case": "en",
+      "text": "Hello! The weather in Istanbul is beautiful today. We are testing our new voice model.",
+      "language": "en",
+      "sample_rate": 24000,
+      "shape": [
+        168960
+      ],
+      "duration_seconds": 7.04,
+      "inference_time_seconds": 1.9614341035485268,
+      "real_time_factor": 0.2786127987995066,
+      "peak_allocated_vram_mb": null,
+      "peak_reserved_vram_mb": null,
+      "rms": 0.06242999185681933,
+      "metadata": {
+        "model_path": "bosonai/higgs-tts-3-4b",
+        "backend": "sglang-omni",
+        "device": "server",
+        "timing_scope": "http_round_trip_including_audio_decode",
+        "voice_cloning": false
+      }
+    },
+    {
+      "case": "fr",
+      "text": "Bonjour ! Il fait très beau à Istanbul aujourd'hui. Nous testons notre nouveau modèle vocal.",
+      "language": "fr",
+      "sample_rate": 24000,
+      "shape": [
+        139200
+      ],
+      "duration_seconds": 5.8,
+      "inference_time_seconds": 1.5847802385687828,
+      "real_time_factor": 0.27323797216703155,
+      "peak_allocated_vram_mb": null,
+      "peak_reserved_vram_mb": null,
+      "rms": 0.03494581828282394,
+      "metadata": {
+        "model_path": "bosonai/higgs-tts-3-4b",
+        "backend": "sglang-omni",
+        "device": "server",
+        "timing_scope": "http_round_trip_including_audio_decode",
+        "voice_cloning": false
+      }
+    },
+    {
+      "case": "tr-clone",
+      "text": "Bu cümle, ilk örnekte üretilen ses referans alınarak okunuyor.",
+      "language": "tr",
+      "sample_rate": 24000,
+      "shape": [
+        120960
+      ],
+      "duration_seconds": 5.04,
+      "inference_time_seconds": 1.5032362006604671,
+      "real_time_factor": 0.29826115092469585,
+      "peak_allocated_vram_mb": null,
+      "peak_reserved_vram_mb": null,
+      "rms": 0.09489449051512866,
+      "metadata": {
+        "model_path": "bosonai/higgs-tts-3-4b",
+        "backend": "sglang-omni",
+        "device": "server",
+        "timing_scope": "http_round_trip_including_audio_decode",
+        "voice_cloning": true
+      }
+    }
+  ],
+  "note": "First load can include downloads. Warm samples, not a quality ranking.",
+  "server_check_seconds": 0.14781705755740404,
+  "status": "success",
+  "allocated_vram_mb_after_unload": null,
+  "server_lifecycle": "Managed separately; adapter unload leaves server running",
+  "runtime_scope": "Top-level Python, torch, cuda_runtime and packages describe the HTTP client; see server_runtime for GPU inference runtime",
+  "server_runtime": {
+    "torch": "2.11.0+cu130",
+    "torchaudio": "2.11.0+cu130",
+    "torchcodec": "0.11.1+cu130",
+    "transformers": "5.12.1",
+    "sglang": "0.5.16",
+    "sglang-omni": "0.1.0",
+    "source_commit": "3d4eb6e49096aa42e7f8f4e72f028823b2d85b73",
+    "model_revision": "239f63fb7b02b1aa085f98d9efae5e35cc5523e8"
+  }
+}
