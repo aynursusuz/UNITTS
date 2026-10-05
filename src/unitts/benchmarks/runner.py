@@ -52,6 +52,7 @@ def run_benchmark(
     table.add_column("Status", style="bold")
 
     for name in engine_names:
+        engine = None
         try:
             engine = get_engine(name, device=device)
 
@@ -90,8 +91,6 @@ def run_benchmark(
                 "[green]OK[/green]",
             )
 
-            engine.unload_model()
-
         except Exception as e:
             entry = {
                 "engine": name,
@@ -101,6 +100,12 @@ def run_benchmark(
             }
             table.add_row(name, "-", "-", "-", "-", f"[red]FAIL: {str(e)[:40]}[/red]")
             console.print(f"[red]Error with {name}: {e}[/red]")
+        finally:
+            if engine is not None:
+                try:
+                    engine.unload_model()
+                except Exception as e:
+                    console.print(f"[yellow]Could not unload {name}: {e}[/yellow]")
 
         (results_dir / f"{name}.json").write_text(json.dumps(entry, indent=2))
         results.append(entry)
