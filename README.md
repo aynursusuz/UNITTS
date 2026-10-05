@@ -47,7 +47,7 @@ uv pip install --torch-backend cu128 -e ".[moss-tts]"
 >
 > Echo-TTS needs a CUDA GPU (~8 GB VRAM). It depends on `torchcodec`, which loads the system FFmpeg libraries at runtime — install FFmpeg if it is missing. Its weights are non-commercial (CC-BY-NC-SA-4.0).
 
-> MOSS-TTS requires its own Python 3.12 environment and FFmpeg. Higgs uses a separate SGLang-Omni server. Expand the setup below for the tested GPU configuration.
+> Use a separate Python 3.12 environment and FFmpeg for MOSS-TTS. Higgs uses a separate SGLang-Omni server. Expand the setup below for the tested GPU configuration.
 
 <details>
 <summary>GPU environment setup</summary>
@@ -145,6 +145,9 @@ engine.synthesize_to_file("Hello world!", "clone.wav", speaker_audio="ref.wav") 
 unitts list-engines
 unitts synthesize "Hello world!" --engine chatterbox --output out.wav
 unitts benchmark --engine chatterbox
+
+# Higgs: connect to the server configured above
+HIGGS_TTS_BASE_URL=http://127.0.0.1:8001 unitts benchmark --engine higgs-tts
 ```
 
 `benchmark` writes one JSON to `benchmarks/results/<engine>.json` and one WAV to `benchmarks/audio_samples/<engine>.wav`.
