@@ -29,7 +29,6 @@ uv pip install -e .
 
 # Install only the engines you need
 uv pip install -e ".[chatterbox]"
-uv pip install -e ".[chatterbox-multilingual]"
 uv pip install -e ".[fish-audio]"
 uv pip install -e ".[qwen3-tts]"
 uv pip install -e ".[echo-tts]"
@@ -73,7 +72,6 @@ Every engine exposes the same interface. Swap by changing the name:
 
 ```python
 engine = get_engine("chatterbox")     # local, MIT
-engine = get_engine("chatterbox-multilingual")  # local, MIT, 23 languages including Turkish
 engine = get_engine("moss-tts")       # local, Apache-2.0, 31 languages including Turkish
 engine = get_engine("fish-audio")     # local, s2-pro weights, non-commercial
 engine = get_engine("qwen3-tts")      # local, Apache-2.0, 10 languages
@@ -83,7 +81,7 @@ engine = get_engine("supertonic")     # local, ONNX on-device, 31 languages, run
 engine = get_engine("neutts")         # local, voice cloning on CPU, Apache-2.0
 ```
 
-`moss-tts` defaults to the 4B `MOSS-TTS-Local-Transformer-v1.5` checkpoint (48 kHz stereo). Both it and the 8B Delay v1.5 checkpoint support 31 languages. Pass a known language to improve multilingual synthesis:
+`moss-tts` defaults to `OpenMOSS-Team/MOSS-TTS-v1.5`, the 8B Delay checkpoint (24 kHz mono), with 31 languages including Turkish. Pass a known language to improve multilingual synthesis:
 
 ```python
 engine = get_engine("moss-tts", device="cuda", language="tr")
@@ -94,30 +92,11 @@ try:
     )
 finally:
     engine.unload_model()  # also releases the processor's audio codec
-
-# Optional 8B Delay v1.5 checkpoint (24 kHz mono), in the same environment:
-engine = get_engine(
-    "moss-tts", device="cuda", model_path="OpenMOSS-Team/MOSS-TTS-v1.5", language="tr"
-)
 ```
 
-`MOSS_TTS_MODEL` can also select the checkpoint. `language` accepts ISO codes or English names; `"auto"` omits the language tag. `tokens` controls target audio-frame count, and generation options such as `max_new_tokens` or `audio_temperature` are forwarded to upstream. This adapter returns complete audio; it does not expose upstream streaming. Stereo stays stereo in `TTSResult.audio` as `[samples, channels]` and in the saved WAV.
+`MOSS_TTS_MODEL` can also select the checkpoint. `language` accepts ISO codes or English names; `"auto"` omits the language tag. `tokens` controls target audio-frame count, and generation options such as `max_new_tokens` or `audio_temperature` are forwarded to upstream. This adapter returns complete audio; it does not expose upstream streaming.
 
-`chatterbox-multilingual` uses a separate adapter so the original English `chatterbox` engine is unchanged. Install its extra in a separate environment from MOSS:
-
-```python
-engine = get_engine("chatterbox-multilingual", device="cuda", language="tr")
-try:
-    engine.synthesize_to_file("Merhaba! UNITTS artık çok dilli.", "chatterbox-tr.wav")
-    engine.synthesize_to_file(
-        "Bu ses bir referans kayıttan üretildi.", "chatterbox-clone.wav",
-        audio_prompt_path="ref.wav",
-    )
-finally:
-    engine.unload_model()
-```
-
-The PyPI `chatterbox-tts==0.1.7` release loads Multilingual V2 by default. Upstream's newer V3 can be selected with `t3_model="v3"` only when a version exposing that argument is installed; otherwise the adapter reports the unsupported option before downloading weights. See the [official Chatterbox repository](https://github.com/resemble-ai/chatterbox) for V3 installation. Qwen3-TTS supports ten languages, but Turkish is not one of them.
+Optional: select the 4B Local variant with `model_path="OpenMOSS-Team/MOSS-TTS-Local-Transformer-v1.5"`; its 48 kHz stereo output stays `[samples, channels]` in `TTSResult.audio` and the WAV.
 
 First call to `fish-audio` downloads the 11 GB s2-pro checkpoint from HuggingFace into the default HF cache. Set `FISH_S2_PRO_DIR` to point at an existing local copy.
 
@@ -163,7 +142,6 @@ The CLI supports basic synthesis; use the Python API above for language selectio
 | Engine | Type | Voice cloning | License | Status |
 |--------|------|:-------------:|---------|--------|
 | [Chatterbox](https://github.com/resemble-ai/chatterbox) | local | yes | MIT | integrated |
-| [Chatterbox Multilingual](https://github.com/resemble-ai/chatterbox) | local | yes | MIT | adapter added; GPU validation pending |
 | [MOSS-TTS v1.5](https://github.com/OpenMOSS/MOSS-TTS) | local | yes | Apache-2.0 | adapter added; GPU validation pending |
 | [Fish Audio s2-pro](https://huggingface.co/fishaudio/s2-pro) | local | yes | Fish Audio Research License | integrated |
 | [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) | local | yes | Apache-2.0 | integrated |
@@ -183,7 +161,7 @@ The CLI supports basic synthesis; use the Python API above for language selectio
 
 *RTF (real-time factor) = inference time / audio duration. Lower is faster.* Fish Audio measurements are without `--compile`; upstream documents ~5x speedup after kernel fusion. Full results: [`benchmarks/results/`](benchmarks/results/). Audio samples: [`benchmarks/audio_samples/`](benchmarks/audio_samples/). Chatterbox and Fish Audio were measured on an A100; Qwen3-TTS and Echo-TTS on an H100. Echo-TTS reaches the GPU only with a recent CUDA `torch` build; on older drivers it falls back to CPU.
 
-These historical results are not a controlled speed ranking: GPU hardware and input texts differ. The runner records one inference and allocated VRAM snapshots, not repeated warm measurements or peak VRAM. MOSS-TTS and Chatterbox Multilingual have no measured results yet. Compare them on the same GPU and text before making performance or cost claims.
+These historical results are not a controlled speed ranking: GPU hardware and input texts differ. The runner records one inference and allocated VRAM snapshots, not repeated warm measurements or peak VRAM. MOSS-TTS has no measured results yet. Compare engines on the same GPU and text before making performance or cost claims.
 
 ## Adding an engine
 
@@ -208,4 +186,4 @@ The `supertonic` engine uses Supertonic weights from Supertone under the OpenRAI
 
 The `neutts` engine defaults to NeuTTS-Air weights (`neuphonic/neutts-air`) from Neuphonic, released under Apache 2.0; the `neutts-nano` checkpoints use the NeuTTS Open License.
 
-The `moss-tts` engine uses MOSS-TTS v1.5 / Local Transformer v1.5 and MOSS-Audio-Tokenizer weights from OpenMOSS / MOSI.AI under Apache 2.0. The `chatterbox-multilingual` engine uses Resemble AI's Chatterbox Multilingual weights under MIT.
+The `moss-tts` engine uses MOSS-TTS v1.5 / Local Transformer v1.5 and MOSS-Audio-Tokenizer weights from OpenMOSS / MOSI.AI under Apache 2.0.

@@ -13,13 +13,8 @@ MOSS-TTS v1.5 (engine name: "moss-tts")
     under Apache 2.0. This engine uses the official Hugging Face remote
     model code and the checkpoint's MOSS-Audio-Tokenizer.
     Source: https://github.com/OpenMOSS/MOSS-TTS.
-    Default: https://huggingface.co/OpenMOSS-Team/MOSS-TTS-Local-Transformer-v1.5.
-    Alternative: https://huggingface.co/OpenMOSS-Team/MOSS-TTS-v1.5.
-
-Chatterbox Multilingual (engine name: "chatterbox-multilingual")
-    Code and model weights from Resemble AI are licensed under the MIT
-    License. Source: https://github.com/resemble-ai/chatterbox.
-    Model weights: https://huggingface.co/ResembleAI/chatterbox.
+    Default: https://huggingface.co/OpenMOSS-Team/MOSS-TTS-v1.5.
+    Alternative: https://huggingface.co/OpenMOSS-Team/MOSS-TTS-Local-Transformer-v1.5.
 
 Fish Audio s2-pro (engine name: "fish-audio")
     This model is licensed under the Fish Audio Research License, Copyright ©

@@ -31,7 +31,6 @@ dependencies = [
 
 [project.optional-dependencies]
 chatterbox = ["chatterbox-tts"]
-chatterbox-multilingual = ["chatterbox-tts>=0.1.7", "setuptools<80"]
 moss-tts = [
     "torch==2.9.1",
     "torchaudio==2.9.1",
