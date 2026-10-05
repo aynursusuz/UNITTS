@@ -1,5 +1,5 @@
 <div align="center">
-<h2>UNITTS: One Python interface for open-source TTS models</h2>
+<h2>UNITTS: One Python interface for TTS models</h2>
 <div>
     <a href="https://github.com/aynursusuz/unitts/actions/workflows/ci.yml" target="_blank">
         <img src="https://img.shields.io/github/actions/workflow/status/aynursusuz/unitts/ci.yml?branch=main&style=for-the-badge&labelColor=2D3748" alt="CI">
@@ -15,7 +15,7 @@
 
 ## Overview
 
-unitts gathers open-source text-to-speech models behind one Python interface. Install once and call any supported engine the same way; new engines are added one at a time.
+unitts gathers local and self-hosted text-to-speech models behind one Python interface. Call supported engines the same way; new engines are added one at a time. Model licenses vary, including open-source and research-only weights.
 
 ## Installation
 
@@ -24,7 +24,7 @@ git clone https://github.com/aynursusuz/unitts.git
 cd unitts
 uv venv --python 3.12 && source .venv/bin/activate
 
-# Base install (no engines)
+# Base install (includes the Higgs HTTP client; no model weights)
 uv pip install -e .
 
 # Install only the engines you need
@@ -45,6 +45,43 @@ uv pip install -e ".[neutts]"
 >
 > Echo-TTS needs a CUDA GPU (~8 GB VRAM). It depends on `torchcodec`, which loads the system FFmpeg libraries at runtime — install FFmpeg if it is missing. Its weights are non-commercial (CC-BY-NC-SA-4.0).
 
+### MOSS-TTS GPU environment
+
+Use a separate environment for MOSS-TTS: its Transformers 5.0.0 / PyTorch 2.9.1 stack conflicts with several other engines. On Linux with a CUDA 12.8-compatible driver:
+
+```bash
+uv venv --python 3.12 .venv-moss
+source .venv-moss/bin/activate
+uv pip install --torch-backend cu128 -e ".[moss-tts]"
+# Install FFmpeg through your OS package manager if it is missing:
+# sudo apt-get install ffmpeg
+```
+
+The adapter loads the official Hugging Face model code with `trust_remote_code=True`, including the checkpoint's audio tokenizer. Weights are downloaded on first use. FlashAttention is optional; the CUDA default is PyTorch SDPA. See the [upstream installation notes](https://github.com/OpenMOSS/MOSS-TTS#environment-setup).
+
+### Higgs TTS 3 server environment
+
+The `higgs-tts` client works with the base UNITTS installation; it needs no extra package. Run the official SGLang-Omni server in a separate environment. This pinned setup uses Python 3.12 and CUDA 13.0 wheels, so the GPU driver must support CUDA 13.0. Keep it separate from the MOSS CUDA 12.8 environment:
+
+```bash
+# From the UNITTS checkout; keep the server source outside this repository.
+git clone https://github.com/sgl-project/sglang-omni.git ../sglang-omni-higgs
+git -C ../sglang-omni-higgs checkout 3d4eb6e49096aa42e7f8f4e72f028823b2d85b73
+uv venv --python 3.12 .venv-higgs-server
+source .venv-higgs-server/bin/activate
+uv pip install --prerelease=allow --torch-backend cu130 -e ../sglang-omni-higgs
+
+sgl-omni serve \
+    --model-path bosonai/higgs-tts-3-4b \
+    --model-name bosonai/higgs-tts-3-4b \
+    --host 127.0.0.1 --port 8001 \
+    --mem-fraction-static 0.55 \
+    --max-running-requests 8 \
+    --cuda-graph-max-bs 8
+```
+
+In another terminal, use the UNITTS environment to call this server. Model weights download on first server startup. The client checks `/health` and verifies the configured model ID through `/v1/models`; a successful synthesis is still needed to confirm inference works. These checks do not launch the server. See the [official Higgs model card](https://huggingface.co/bosonai/higgs-tts-3-4b) and [SGLang-Omni cookbook](https://sgl-project.github.io/sglang-omni/cookbook/higgs_tts.html). This setup passed GPU synthesis and cloning tests on RTX 6000 Ada; first startup also compiles CUDA kernels.
+
 ## Inference
 
 ```python
@@ -58,6 +95,8 @@ Every engine exposes the same interface. Swap by changing the name:
 
 ```python
 engine = get_engine("chatterbox")     # local, MIT
+engine = get_engine("moss-tts")       # local, Apache-2.0, 31 languages including Turkish
+engine = get_engine("higgs-tts", base_url="http://127.0.0.1:8001")  # self-hosted
 engine = get_engine("fish-audio")     # local, s2-pro weights, non-commercial
 engine = get_engine("qwen3-tts")      # local, Apache-2.0, 10 languages
 engine = get_engine("echo-tts")       # local, diffusion, MIT code / non-commercial weights
@@ -65,6 +104,46 @@ engine = get_engine("kokoro")         # local, Apache-2.0, 82M params, runs on C
 engine = get_engine("supertonic")     # local, ONNX on-device, 31 languages, runs on CPU
 engine = get_engine("neutts")         # local, voice cloning on CPU, Apache-2.0
 ```
+
+`moss-tts` defaults to `OpenMOSS-Team/MOSS-TTS-v1.5`, the 8B Delay checkpoint (24 kHz mono), with 31 languages including Turkish. Pass a known language to improve multilingual synthesis:
+
+```python
+engine = get_engine("moss-tts", device="cuda", language="tr")
+try:
+    engine.synthesize_to_file("Merhaba! Bugün hava çok güzel.", "moss-tr.wav")
+    engine.synthesize_to_file(
+        "Bu ses bir referans kayıttan üretildi.", "moss-clone.wav", ref_audio="ref.wav"
+    )
+finally:
+    engine.unload_model()  # also releases the processor's audio codec
+```
+
+`MOSS_TTS_MODEL` can also select the checkpoint. `language` accepts ISO codes or English names; `"auto"` omits the language tag. `tokens` controls target audio-frame count, and generation options such as `max_new_tokens` or `audio_temperature` are forwarded to upstream. This adapter returns complete audio; it does not expose upstream streaming.
+
+Optional: select the 4B Local variant with `model_path="OpenMOSS-Team/MOSS-TTS-Local-Transformer-v1.5"`; its 48 kHz stereo output stays `[samples, channels]` in `TTSResult.audio` and the WAV.
+
+`higgs-tts` uses `bosonai/higgs-tts-3-4b` through the server above. It supports 100+ languages including Turkish and infers the language from the text; do not pass a `language` option. Plain synthesis and reference-based cloning use the same interface:
+
+```python
+engine = get_engine("higgs-tts", base_url="http://127.0.0.1:8001")
+try:
+    engine.synthesize_to_file("Merhaba! Bugün nasılsınız?", "higgs-tr.wav")
+    engine.synthesize_to_file(
+        "Bu cümleyi referans kaydındaki sesle okuyorum.",
+        "higgs-clone.wav",
+        ref_audio="ref.wav",
+        ref_text="Merhaba, bu bir ses örneğidir.",  # must match ref.wav exactly
+        temperature=0.8,
+        top_k=50,
+        max_new_tokens=2048,
+    )
+finally:
+    engine.unload_model()  # disconnects this client; the server keeps running
+```
+
+Reference audio is sent as a base64 data URI, so it can be a file on the client machine. Inline controls such as `<|emotion:contentment|>` and `<|prosody:pause|>` are preserved. The adapter returns complete WAV audio, and its timing includes the HTTP round trip and WAV decoding. It reports server VRAM as unavailable; `device=` does not change the server's GPU placement. Stop the server explicitly when finished, for example with Ctrl+C in its terminal.
+
+Set `HIGGS_TTS_BASE_URL` to use another endpoint (the client default is `http://127.0.0.1:8000`). `HIGGS_TTS_MODEL` or `model_path=` must match the ID advertised by `/v1/models`; `HIGGS_TTS_API_KEY` or `api_key=` supplies optional bearer authentication. The base client does not start or install SGLang-Omni.
 
 First call to `fish-audio` downloads the 11 GB s2-pro checkpoint from HuggingFace into the default HF cache. Set `FISH_S2_PRO_DIR` to point at an existing local copy.
 
@@ -103,11 +182,15 @@ unitts benchmark --engine chatterbox
 
 `benchmark` writes one JSON to `benchmarks/results/<engine>.json` and one WAV to `benchmarks/audio_samples/<engine>.wav`.
 
+The CLI supports basic synthesis; use the Python API above for language selection, reference audio and model-specific generation options.
+
 ## Engines
 
 | Engine | Type | Voice cloning | License | Status |
 |--------|------|:-------------:|---------|--------|
 | [Chatterbox](https://github.com/resemble-ai/chatterbox) | local | yes | MIT | integrated |
+| [MOSS-TTS v1.5](https://github.com/OpenMOSS/MOSS-TTS) | local | yes | Apache-2.0 | GPU smoke test passed (8B) |
+| [Higgs TTS 3 4B](https://huggingface.co/bosonai/higgs-tts-3-4b) | self-hosted HTTP | yes | Boson Research and Non-Commercial + Creator Use Grant | GPU smoke test passed (4B) |
 | [Fish Audio s2-pro](https://huggingface.co/fishaudio/s2-pro) | local | yes | Fish Audio Research License | integrated |
 | [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) | local | yes | Apache-2.0 | integrated |
 | [Echo-TTS](https://github.com/FoxEngine-ai/echo-tts) | local | yes | CC-BY-NC-SA-4.0 (weights) | integrated |
@@ -126,11 +209,52 @@ unitts benchmark --engine chatterbox
 
 *RTF (real-time factor) = inference time / audio duration. Lower is faster.* Fish Audio measurements are without `--compile`; upstream documents ~5x speedup after kernel fusion. Full results: [`benchmarks/results/`](benchmarks/results/). Audio samples: [`benchmarks/audio_samples/`](benchmarks/audio_samples/). Chatterbox and Fish Audio were measured on an A100; Qwen3-TTS and Echo-TTS on an H100. Echo-TTS reaches the GPU only with a recent CUDA `torch` build; on older drivers it falls back to CPU.
 
+These historical results are not a controlled speed ranking: GPU hardware and input texts differ. The runner records one inference and allocated VRAM snapshots, not repeated warm measurements or peak VRAM. Compare engines on the same GPU and text before making performance or cost claims.
+
+### GPU smoke tests
+
+On October 5, 2026, both models passed Turkish, English, French and Turkish voice-cloning smoke tests on the same NVIDIA RTX 6000 Ada Generation (48 GB). All eight outputs were 24 kHz mono. Each cloning case used that model's first generated Turkish clip as its reference; Higgs also received its transcript.
+
+| Engine, Turkish short text | Audio (s) | Inference (s) | RTF | Peak allocated VRAM (MiB) |
+|----------------------------|-----------|---------------|-----|---------------------------|
+| MOSS-TTS v1.5 8B | 5.28 | 2.57 | 0.487 | 23,168 |
+| Higgs TTS 3 4B | 5.56 | 1.58 | 0.284 | not measured (server) |
+
+MOSS used PyTorch 2.9.1+cu128 and Transformers 5.0.0. Higgs used the pinned SGLang-Omni server above, SGLang 0.5.16, PyTorch 2.11.0+cu130 and Transformers 5.12.1. Higgs timing includes the local HTTP round trip and WAV decoding.
+
+Full texts, all cases and environment details: [MOSS results](benchmarks/results/gpu-smoke/moss-v1.5.json), [Higgs results](benchmarks/results/gpu-smoke/higgs-tts.json). Turkish audio: [MOSS sample](benchmarks/audio_samples/moss-tts.wav), [Higgs sample](benchmarks/audio_samples/higgs-tts.wav).
+
+These are individual warm samples, excluding initial model loading, and demonstrate integration rather than a quality ranking or a minimum-VRAM requirement. They do not measure pronunciation or voice similarity. The MOSS peak allocation above covers the Turkish case; other inputs and cloning can use more memory. Higgs server memory is not measured by the HTTP client. The optional MOSS Local checkpoint was not tested in this run.
+
+### Run GPU smoke checks
+
+The helper [`benchmarks/gpu_smoke_test.py`](benchmarks/gpu_smoke_test.py) performs a warmup followed by Turkish, English, French and reference-cloning cases. It checks that each WAV is finite, nonempty and nonsilent, and saves the WAVs and `result.json` in the chosen directory. It does not score pronunciation or speaker similarity.
+
+Run from the UNITTS checkout on the CUDA host, using an environment where `unitts` is installed. This GPU-specific helper requires a local CUDA-enabled PyTorch installation even for Higgs; the ordinary Higgs HTTP client does not. Run the engines one at a time:
+
+```bash
+source .venv-moss/bin/activate
+python benchmarks/gpu_smoke_test.py \
+    --engine moss-tts \
+    --model-path OpenMOSS-Team/MOSS-TTS-v1.5 \
+    --output-dir benchmarks/audio_samples/gpu-smoke/moss-v1.5
+
+# After the MOSS check exits, start the Higgs server in its own terminal.
+# Use a separate UNITTS client environment with CUDA PyTorch for this helper.
+source .venv/bin/activate
+python benchmarks/gpu_smoke_test.py \
+    --engine higgs-tts \
+    --base-url http://127.0.0.1:8001 \
+    --output-dir benchmarks/audio_samples/gpu-smoke/higgs-tts
+```
+
+MOSS reports peak allocated VRAM. Higgs reports HTTP timing and leaves server VRAM unmeasured; client PyTorch allocation would not represent the server process.
+
 ## Adding an engine
 
 1. Add `src/unitts/engines/<name>_engine.py`
 2. Subclass `TTSEngine`, implement `load_model()` and `synthesize()`, decorate with `@register_engine`
-3. Add the package to `pyproject.toml` extras
+3. If the adapter needs new packages, add them to `pyproject.toml` extras; adapters using existing dependencies need no extra
 4. Add a unit test under `tests/unit/`
 
 ## License
@@ -148,3 +272,7 @@ The `kokoro` engine uses Kokoro-82M weights (`hexgrad/Kokoro-82M`), released und
 The `supertonic` engine uses Supertonic weights from Supertone under the OpenRAIL-M license; the sample code is MIT.
 
 The `neutts` engine defaults to NeuTTS-Air weights (`neuphonic/neutts-air`) from Neuphonic, released under Apache 2.0; the `neutts-nano` checkpoints use the NeuTTS Open License.
+
+The `moss-tts` engine uses MOSS-TTS v1.5 / Local Transformer v1.5 and MOSS-Audio-Tokenizer weights from OpenMOSS / MOSI.AI under Apache 2.0.
+
+**Built with Higgs TTS 3 licensed from Boson AI USA, Inc.** The `higgs-tts` engine uses weights under the [Boson Higgs TTS 3 Research and Non-Commercial License](https://huggingface.co/bosonai/higgs-tts-3-4b/blob/main/LICENSE), a source-available model license. Its Creator Use Grant permits creators to publish and monetize creative content, including podcasts, videos and audiobooks, with prominent attribution to Boson AI's Higgs Audio in the audio or accompanying text. That grant does not cover serving the model to third parties or embedding it in a product or service; those uses require a separate commercial license. See the full terms and upstream notices before deployment.

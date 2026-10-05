@@ -31,6 +31,15 @@ dependencies = [
 
 [project.optional-dependencies]
 chatterbox = ["chatterbox-tts"]
+moss-tts = [
+    "torch==2.9.1",
+    "torchaudio==2.9.1",
+    "torchcodec==0.8.1",
+    "transformers==5.0.0",
+    "accelerate>=1.10.1",
+    "librosa>=0.11",
+    "einops>=0.8.1",
+]
 fish-audio = [
     "fish-speech @ git+https://github.com/fishaudio/fish-speech.git",
     "huggingface_hub>=0.24",
