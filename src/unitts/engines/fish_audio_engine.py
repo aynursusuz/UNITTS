@@ -42,22 +42,16 @@ class FishAudioEngine(TTSEngine):
     description = "Fish Audio s2-pro (HF weights, non-commercial)"
     url = "https://huggingface.co/fishaudio/s2-pro"
     license = "Fish Audio Research License"
+    # The 80+ languages listed on the model card.
     languages = [
-        "en",
-        "zh",
-        "ja",
-        "ko",
-        "es",
-        "pt",
-        "ar",
-        "ru",
-        "fr",
-        "de",
-        "it",
-        "tr",
-        "nl",
-        "pl",
-    ]
+        "zh", "en", "ja", "ko", "es", "pt", "ar", "ru", "fr", "de", "sv", "it",
+        "tr", "no", "nl", "cy", "eu", "ca", "da", "gl", "ta", "hu", "fi", "pl",
+        "et", "hi", "la", "ur", "th", "vi", "jw", "bn", "yo", "sl", "cs", "sw",
+        "nn", "he", "ms", "uk", "id", "kk", "bg", "lv", "my", "tl", "sk", "ne",
+        "fa", "af", "el", "bo", "hr", "ro", "sn", "mi", "yi", "am", "be", "km",
+        "is", "az", "sd", "br", "sq", "ps", "mn", "ht", "ml", "sr", "sa", "te",
+        "ka", "bs", "pa", "lt", "kn", "si", "hy", "mr", "as", "gu", "fo",
+    ]  # fmt: skip
     supports_voice_cloning = True
     supports_streaming = True
     default_sample_rate = 44100

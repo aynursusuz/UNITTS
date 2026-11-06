@@ -31,7 +31,7 @@ class KokoroEngine(TTSEngine):
     """Kokoro: an 82M-parameter TTS model that runs faster than real time on CPU.
 
     Kokoro is the lightweight engine in unitts: Apache-2.0 weights, ~330 MB
-    checkpoint, dozens of built-in voices across 9 languages, no GPU required.
+    checkpoint, dozens of built-in voices across 8 languages, no GPU required.
     It has no voice cloning; pick from the built-in voices instead.
 
     English text needs ``espeak-ng`` installed on the system as a
@@ -40,7 +40,7 @@ class KokoroEngine(TTSEngine):
     """
 
     name = "kokoro"
-    description = "Kokoro-82M (lightweight, CPU real-time, 9 languages)"
+    description = "Kokoro-82M (lightweight, CPU real-time, 8 languages)"
     url = "https://github.com/hexgrad/kokoro"
     license = "Apache-2.0"
     languages = ["en", "es", "fr", "hi", "it", "ja", "pt", "zh"]
