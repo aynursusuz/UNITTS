@@ -9,6 +9,5 @@
   "vram_after_load_mb": 3058.8,
   "vram_after_inference_mb": 3107.5,
   "gpu": "NVIDIA A100 80GB PCIe",
-  "audio_file": "benchmarks/audio_samples/chatterbox.wav",
   "timestamp": "2026-04-24T11:13:14.784010+00:00"
 }

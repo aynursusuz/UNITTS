@@ -9,6 +9,5 @@
   "sample_rate": 44100,
   "vram_after_load_mb": 19088.4,
   "vram_after_inference_mb": 19105.0,
-  "audio_file": "benchmarks/audio_samples/fish-audio.wav",
   "timestamp": "2026-04-24T13:17:12.975415+00:00"
 }

@@ -10,6 +10,5 @@
   "vram_after_load_mb": 3981.7,
   "vram_after_inference_mb": 4013.7,
   "gpu": "NVIDIA H100 PCIe",
-  "audio_file": "benchmarks/audio_samples/qwen3-tts.wav",
   "timestamp": "2026-06-09T13:49:04.634033+00:00"
 }

@@ -83,9 +83,25 @@ unitts benchmark --engine moss-tts
 
 *RTF = inference time / audio duration; lower is faster.* GPUs and input texts differ. MOSS and Higgs are single warm Turkish samples, excluding model loading; Higgs timing includes HTTP and WAV decoding. These measurements are not a controlled speed or quality ranking. Fish Audio was measured without `--compile`.
 
-VRAM values are allocated-memory snapshots; `*` marks peak allocation for the MOSS sample. `—` means server VRAM was not measured. Row links contain full results; listen to the [audio samples](benchmarks/audio_samples/).
+VRAM values are allocated-memory snapshots; `*` marks peak allocation for the MOSS sample. `—` means server VRAM was not measured. Row links contain full results.
 
 Use `unitts benchmark --engine <name>` for a basic run. For multilingual and cloning checks, run [`benchmarks/gpu_smoke_test.py`](benchmarks/gpu_smoke_test.py) with `--engine moss-tts` or `--engine higgs-tts` and `--output-dir <directory>` on a CUDA host; start the Higgs server first and pass `--base-url http://127.0.0.1:8000`.
+
+## Audio samples
+
+All nine engines reading the same sentence: "One Python interface for every text to speech model." These are separate from the benchmark runs above, which used a longer text.
+
+| Engine | Sample | How it was generated |
+|--------|--------|----------------------|
+| Kokoro | [kokoro.wav](benchmarks/audio_samples/kokoro.wav) | default voice (`af_heart`) |
+| Chatterbox | [chatterbox.wav](benchmarks/audio_samples/chatterbox.wav) | no reference audio |
+| Qwen3-TTS | [qwen3-tts.wav](benchmarks/audio_samples/qwen3-tts.wav) | default speaker (`Ryan`), `language="English"`, `instruct="Speak in a calm, natural, conversational tone."` |
+| Supertonic | [supertonic.wav](benchmarks/audio_samples/supertonic.wav) | default voice (`M1`), `lang="en"` |
+| Fish Audio s2-pro | [fish-audio.wav](benchmarks/audio_samples/fish-audio.wav) | no reference audio |
+| Echo-TTS | [echo-tts.wav](benchmarks/audio_samples/echo-tts.wav) | no reference audio |
+| NeuTTS | [neutts.wav](benchmarks/audio_samples/neutts.wav) | cloned from a Kokoro clip (NeuTTS needs a reference) |
+| MOSS-TTS v1.5 | [moss-tts.wav](benchmarks/audio_samples/moss-tts.wav) | no reference audio, `language="en"` |
+| Higgs TTS 3 4B | [higgs-tts.wav](benchmarks/audio_samples/higgs-tts.wav) | no reference audio |
 
 ## Adding an engine
 
