@@ -139,7 +139,9 @@ def packages(engine: str) -> list[str]:
     if engine in {"fish-audio", "qwen3-tts", "neutts"}:
         result.append("torchaudio==2.8.0")
     if engine == "neutts":
-        result.append("setuptools<82")
+        # Unpinned, uv picks torchao 0.18 (needs a newer torch) and datasets 1.1.1
+        # (breaks with current pyarrow); both fail at import.
+        result += ["setuptools<82", "torchao==0.13.0", "datasets>=3"]
     if engine == "kokoro":
         result.append("transformers==4.57.3")
     return result

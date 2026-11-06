@@ -1,3 +1,5 @@
 # Match Fish Speech's upstream override for obsolete descript-audiotools metadata.
 # https://github.com/fishaudio/fish-speech/blob/main/pyproject.toml
 protobuf>=3.20.0,<6.0.0
+# Newer TensorBoard needs protobuf>=6.31, outside the override above.
+tensorboard<=2.19.0

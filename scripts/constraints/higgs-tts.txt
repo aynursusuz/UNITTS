@@ -1,3 +1,10 @@
 # Match the pinned server's upstream override for obsolete descript-audiotools metadata.
 # https://github.com/sgl-project/sglang-omni/blob/3d4eb6e49096aa42e7f8f4e72f028823b2d85b73/pyproject.toml
 protobuf>=6.31.1,<7.0.0
+# grpcio-reflection and grpcio-health-checking need protobuf 7 from 1.82.1 on.
+grpcio-reflection<=1.82.0
+grpcio-health-checking<=1.82.0
+# Keep the JIT compiler on the CUDA 13.0 line that torch cu130 ships headers for.
+nvidia-cuda-nvcc==13.0.*
+nvidia-cuda-crt==13.0.*
+nvidia-nvvm==13.0.*

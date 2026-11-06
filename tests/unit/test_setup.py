@@ -332,3 +332,19 @@ def test_fish_installer_applies_its_own_upstream_override(tmp_path, commands):
     assert path.name == "fish-audio.txt"
     assert "protobuf>=3.20.0,<6.0.0" in path.read_text()
     assert any("SpecifierSet('>=3.20.0,<6.0.0')" in command[-1] for command in commands)
+
+
+def test_neutts_pins_the_packages_that_break_unpinned():
+    assert {"torch==2.8.0", "torchao==0.13.0", "datasets>=3"} <= set(setup.packages("neutts"))
+
+
+@pytest.mark.parametrize(
+    ("engine", "pins"),
+    [
+        ("fish-audio", ["tensorboard<=2.19.0"]),
+        ("higgs-tts", ["grpcio-reflection<=1.82.0", "nvidia-cuda-nvcc==13.0.*"]),
+    ],
+)
+def test_override_files_keep_the_pins_setup_depends_on(engine, pins):
+    lines = Path(setup.override_arguments(engine)[1]).read_text().splitlines()
+    assert set(pins) <= set(lines)
