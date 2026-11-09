@@ -14,6 +14,10 @@ import sys
 from pathlib import Path
 
 HIGGS_REVISION = "3d4eb6e49096aa42e7f8f4e72f028823b2d85b73"
+SPACY_EN_MODEL = (
+    "en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/"
+    "en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl"
+)
 MARKER = ".unitts-setup.json"
 IMPORTS = {
     "chatterbox": "from chatterbox.tts import ChatterboxTTS",
@@ -26,7 +30,7 @@ IMPORTS = {
     ),
     "qwen3-tts": "from qwen_tts import Qwen3TTSModel",
     "echo-tts": "from echo_tts import EchoTTS; import torchcodec",
-    "kokoro": "from kokoro import KPipeline",
+    "kokoro": "from kokoro import KPipeline; import en_core_web_sm",
     "supertonic": "from supertonic import TTS",
     "neutts": "from neutts import NeuTTS",
 }
@@ -143,7 +147,9 @@ def packages(engine: str) -> list[str]:
         # (breaks with current pyarrow); both fail at import.
         result += ["setuptools<82", "torchao==0.13.0", "datasets>=3"]
     if engine == "kokoro":
-        result.append("transformers==4.57.3")
+        # misaki's English G2P needs this spaCy model. Installed here, because its own
+        # first-run download only works inside an activated environment.
+        result += ["transformers==4.57.3", SPACY_EN_MODEL]
     return result
 
 

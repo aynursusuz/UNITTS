@@ -348,3 +348,8 @@ def test_neutts_pins_the_packages_that_break_unpinned():
 def test_override_files_keep_the_pins_setup_depends_on(engine, pins):
     lines = Path(setup.override_arguments(engine)[1]).read_text().splitlines()
     assert set(pins) <= set(lines)
+
+
+def test_kokoro_installs_the_spacy_model_its_g2p_needs():
+    assert setup.SPACY_EN_MODEL in setup.packages("kokoro")
+    assert "en_core_web_sm" in setup.IMPORTS["kokoro"]
