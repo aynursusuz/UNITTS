@@ -30,6 +30,16 @@ source .venv-moss-tts/bin/activate
 
 To switch models, rerun the same command with another engine name and activate the environment printed by setup. Setup checks prerequisites and reports missing packages or system libraries with repair instructions. Weights download on first use.
 
+### Before you start
+
+Some engines need system packages or model access that setup cannot install for you:
+
+- **eSpeak NG** (Kokoro, NeuTTS). macOS: `brew install espeak-ng`; the copies bundled with these Python packages do not load on macOS, so UNITTS uses Homebrew's. Debian/Ubuntu: `sudo apt-get install espeak-ng` if the first run reports a phonemizer error.
+- **FFmpeg** (MOSS-TTS, Echo-TTS, Higgs): `brew install ffmpeg` or `sudo apt-get install ffmpeg`.
+- **PortAudio** (Fish Audio on Linux): `sudo apt-get install portaudio19-dev`.
+- **Linux with an NVIDIA GPU** (Echo-TTS, Higgs). Higgs needs a driver that reports CUDA 13.0 or newer in `nvidia-smi`.
+- **Hugging Face access** (NeuTTS): accept the terms on [neutts-air](https://huggingface.co/neuphonic/neutts-air) and [neucodec](https://huggingface.co/neuphonic/neucodec), then run `hf auth login` in the NeuTTS environment.
+
 For `higgs-tts`, the same setup command also installs its server. After activating `.venv-higgs-tts`, run `unitts serve --engine higgs-tts` in another terminal before inference. Stop the server with Ctrl+C when finished.
 
 ## Inference
