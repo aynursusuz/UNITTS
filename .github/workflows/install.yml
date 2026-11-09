@@ -1,0 +1,29 @@
+name: Install
+
+# Engine dependencies are resolved from upstream packages that keep changing, so a
+# setup that passed last month can break without any change here. This runs the real
+# setup for the CPU engines every week.
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  setup:
+    name: Setup (${{ matrix.engine }}, CPU)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [kokoro, supertonic, neutts, chatterbox]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: System packages
+        run: sudo apt-get update && sudo apt-get install -y espeak-ng ffmpeg
+      - name: Setup
+        run: python3 scripts/setup.py --engine ${{ matrix.engine }} --device cpu
