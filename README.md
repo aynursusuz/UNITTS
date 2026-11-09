@@ -17,15 +17,9 @@
 
 unitts gathers local and self-hosted text-to-speech models behind one Python interface. Call supported engines the same way; new engines are added one at a time. Model licenses vary, including open-source and research-only weights.
 
-## Try it in your browser
-
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aynursusuz/UNITTS/blob/main/examples/colab_quickstart.ipynb)
-
-The [quickstart notebook](examples/colab_quickstart.ipynb) installs UNITTS with Kokoro and Supertonic on a free CPU runtime and plays the result.
-
 ## Installation
 
-Requires Python 3.10+ and [uv](https://docs.astral.sh/uv/getting-started/installation/). Install from this repository: the `unitts` package on PyPI is an unrelated project. Choose an engine from the table below; one command installs UNITTS and its dependencies in a dedicated Python 3.12 environment.
+Requires Python 3.10+ and [uv](https://docs.astral.sh/uv/getting-started/installation/). Choose an engine from the table below; one command installs UNITTS and its dependencies in a dedicated Python 3.12 environment.
 
 ```bash
 git clone https://github.com/aynursusuz/unitts.git
@@ -35,16 +29,6 @@ source .venv-moss-tts/bin/activate
 ```
 
 To switch models, rerun the same command with another engine name and activate the environment printed by setup. Setup checks prerequisites and reports missing packages or system libraries with repair instructions. Weights download on first use.
-
-### Before you start
-
-Some engines need system packages or model access that setup cannot install for you:
-
-- **eSpeak NG** (Kokoro, NeuTTS). macOS: `brew install espeak-ng`; the copies bundled with these Python packages do not load on macOS, so UNITTS uses Homebrew's. Debian/Ubuntu: `sudo apt-get install espeak-ng` if the first run reports a phonemizer error.
-- **FFmpeg** (MOSS-TTS, Echo-TTS, Higgs): `brew install ffmpeg` or `sudo apt-get install ffmpeg`.
-- **PortAudio** (Fish Audio on Linux): `sudo apt-get install portaudio19-dev`.
-- **Linux with an NVIDIA GPU** (Echo-TTS, Higgs). Higgs needs a driver that reports CUDA 13.0 or newer in `nvidia-smi`.
-- **Hugging Face access** (NeuTTS): accept the terms on [neutts-air](https://huggingface.co/neuphonic/neutts-air) and [neucodec](https://huggingface.co/neuphonic/neucodec), then run `hf auth login` in the NeuTTS environment.
 
 For `higgs-tts`, the same setup command also installs its server. After activating `.venv-higgs-tts`, run `unitts serve --engine higgs-tts` in another terminal before inference. Stop the server with Ctrl+C when finished.
 
@@ -74,17 +58,17 @@ unitts benchmark --engine moss-tts
 
 ## Engines
 
-| Engine | Name for setup / Python | Runs on | Type | Voice cloning | License | Status |
-|--------|-------------------------|---------|------|:-------------:|---------|--------|
-| [Chatterbox](https://github.com/resemble-ai/chatterbox) | `chatterbox` | CPU or GPU | local | yes | MIT | integrated |
-| [MOSS-TTS v1.5](https://github.com/OpenMOSS/MOSS-TTS) | `moss-tts` | NVIDIA GPU recommended | local | yes | Apache-2.0 | integrated |
-| [Higgs TTS 3 4B](https://huggingface.co/bosonai/higgs-tts-3-4b) | `higgs-tts` | NVIDIA GPU, Linux, CUDA 13 | self-hosted HTTP | yes | Boson Research and Non-Commercial | integrated |
-| [Fish Audio s2-pro](https://huggingface.co/fishaudio/s2-pro) | `fish-audio` | NVIDIA GPU recommended | local | yes | Fish Audio Research License | integrated |
-| [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) | `qwen3-tts` | NVIDIA GPU recommended | local | yes | Apache-2.0 | integrated |
-| [Echo-TTS](https://github.com/FoxEngine-ai/echo-tts) | `echo-tts` | NVIDIA GPU, Linux | local | yes | CC-BY-NC-SA-4.0 (weights) | integrated |
-| [Kokoro](https://github.com/hexgrad/kokoro) | `kokoro` | CPU or GPU | local | no | Apache-2.0 | integrated |
-| [Supertonic](https://github.com/supertone-inc/supertonic) | `supertonic` | CPU | local | no | OpenRAIL-M (weights) | integrated |
-| [NeuTTS](https://github.com/neuphonic/neutts) | `neutts` | CPU or GPU | local | yes | Apache-2.0 | integrated |
+| Engine | Name for setup / Python | Type | Voice cloning | License | Status |
+|--------|-------------------------|------|:-------------:|---------|--------|
+| [Chatterbox](https://github.com/resemble-ai/chatterbox) | `chatterbox` | local | yes | MIT | integrated |
+| [MOSS-TTS v1.5](https://github.com/OpenMOSS/MOSS-TTS) | `moss-tts` | local | yes | Apache-2.0 | integrated |
+| [Higgs TTS 3 4B](https://huggingface.co/bosonai/higgs-tts-3-4b) | `higgs-tts` | self-hosted HTTP | yes | Boson Research and Non-Commercial | integrated |
+| [Fish Audio s2-pro](https://huggingface.co/fishaudio/s2-pro) | `fish-audio` | local | yes | Fish Audio Research License | integrated |
+| [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) | `qwen3-tts` | local | yes | Apache-2.0 | integrated |
+| [Echo-TTS](https://github.com/FoxEngine-ai/echo-tts) | `echo-tts` | local | yes | CC-BY-NC-SA-4.0 (weights) | integrated |
+| [Kokoro](https://github.com/hexgrad/kokoro) | `kokoro` | local | no | Apache-2.0 | integrated |
+| [Supertonic](https://github.com/supertone-inc/supertonic) | `supertonic` | local | no | OpenRAIL-M (weights) | integrated |
+| [NeuTTS](https://github.com/neuphonic/neutts) | `neutts` | local | yes | Apache-2.0 | integrated |
 
 ## Benchmark
 
@@ -99,25 +83,9 @@ unitts benchmark --engine moss-tts
 
 *RTF = inference time / audio duration; lower is faster.* GPUs and input texts differ. MOSS and Higgs are single warm Turkish samples, excluding model loading; Higgs timing includes HTTP and WAV decoding. These measurements are not a controlled speed or quality ranking. Fish Audio was measured without `--compile`.
 
-VRAM values are allocated-memory snapshots; `*` marks peak allocation for the MOSS sample. `—` means server VRAM was not measured. Row links contain full results.
+VRAM values are allocated-memory snapshots; `*` marks peak allocation for the MOSS sample. `—` means server VRAM was not measured. Row links contain full results; listen to the [audio samples](benchmarks/audio_samples/).
 
 Use `unitts benchmark --engine <name>` for a basic run. For multilingual and cloning checks, run [`benchmarks/gpu_smoke_test.py`](benchmarks/gpu_smoke_test.py) with `--engine moss-tts` or `--engine higgs-tts` and `--output-dir <directory>` on a CUDA host; start the Higgs server first and pass `--base-url http://127.0.0.1:8000`.
-
-## Audio samples
-
-All nine engines reading the same sentence: "One Python interface for every text to speech model." These are separate from the benchmark runs above, which used a longer text.
-
-| Engine | Sample | How it was generated |
-|--------|--------|----------------------|
-| Kokoro | [kokoro.wav](benchmarks/audio_samples/kokoro.wav) | default voice (`af_heart`) |
-| Chatterbox | [chatterbox.wav](benchmarks/audio_samples/chatterbox.wav) | no reference audio |
-| Qwen3-TTS | [qwen3-tts.wav](benchmarks/audio_samples/qwen3-tts.wav) | default speaker (`Ryan`), `language="English"`, `instruct="Speak in a calm, natural, conversational tone."` |
-| Supertonic | [supertonic.wav](benchmarks/audio_samples/supertonic.wav) | default voice (`M1`), `lang="en"` |
-| Fish Audio s2-pro | [fish-audio.wav](benchmarks/audio_samples/fish-audio.wav) | no reference audio |
-| Echo-TTS | [echo-tts.wav](benchmarks/audio_samples/echo-tts.wav) | no reference audio |
-| NeuTTS | [neutts.wav](benchmarks/audio_samples/neutts.wav) | cloned from a Kokoro clip (NeuTTS needs a reference) |
-| MOSS-TTS v1.5 | [moss-tts.wav](benchmarks/audio_samples/moss-tts.wav) | no reference audio, `language="en"` |
-| Higgs TTS 3 4B | [higgs-tts.wav](benchmarks/audio_samples/higgs-tts.wav) | no reference audio |
 
 ## Adding an engine
 
