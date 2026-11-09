@@ -77,6 +77,9 @@ class KokoroEngine(TTSEngine):
 
     def load_model(self) -> None:
         """Build the Kokoro pipeline; weights download from HuggingFace on first use."""
+        from unitts.engines._espeak import ensure_working_espeak
+
+        ensure_working_espeak(self.name)
         from kokoro import KPipeline
 
         self.model = KPipeline(lang_code=self.lang_code, repo_id=self.repo_id, device=self.device)

@@ -51,6 +51,9 @@ class NeuTTSEngine(TTSEngine):
 
     def load_model(self) -> None:
         """Load the NeuTTS backbone and codec; weights download on first use."""
+        from unitts.engines._espeak import ensure_working_espeak
+
+        ensure_working_espeak(self.name)
         from neutts import NeuTTS
 
         self.model = NeuTTS(
